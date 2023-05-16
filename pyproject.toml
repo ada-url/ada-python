@@ -1,0 +1,17 @@
+[build-system]
+requires = ["cffi", "setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.black]
+line-length = 88
+target-version = ['py38']
+skip-string-normalization = true
+
+[tool.ruff]
+select = ["E", "F"]
+line-length = 88
+target-version = "py38"
+exclude = [
+    ".git",
+    ".ruff_cache",
+]
