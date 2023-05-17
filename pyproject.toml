@@ -1,5 +1,5 @@
 [build-system]
-requires = ["cffi", "setuptools", "wheel"]
+requires = ["cffi", "setuptools", "urllib3>=2.0.2", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [tool.black]
