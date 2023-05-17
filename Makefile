@@ -29,8 +29,8 @@ clean:
 	rm -rf _build/
 	rm -rf _dist/
 	rm -rf ada_url.egg-info/
-	rm -f ada_url/_ada_wrapper.abi3.so
-	rm -f ada_url/ada.o
+	$(RM) ada_url/_ada_wrapper.abi3.so
+	$(RM) ada_url/ada.o
 
 .PHONY: package
 package:
