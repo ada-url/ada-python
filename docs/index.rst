@@ -3,7 +3,7 @@
 API Documentation
 =================
 
-.. automodule:: what_url
+.. automodule:: ada_url
     :members:
 
 

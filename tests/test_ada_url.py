@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from what_url import (
+from ada_url import (
     check_url,
     join_url,
     normalize_url,
@@ -9,7 +9,7 @@ from what_url import (
 )
 
 
-class WhatURLTests(TestCase):
+class ADAURLTests(TestCase):
     def test_check_url(self):
         for s, expected in (
             ('https:example.org', True),

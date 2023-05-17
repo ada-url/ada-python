@@ -28,12 +28,12 @@ docs:
 clean:
 	rm -rf _build/
 	rm -rf _dist/
-	rm -rf what_url.egg-info/
-	rm -f what_url/_ada_wrapper.abi3.so
-	rm -f what_url/ada.o
+	rm -rf ada_url.egg-info/
+	rm -f ada_url/_ada_wrapper.abi3.so
+	rm -f ada_url/ada.o
 
 .PHONY: package
 package:
-	c++ -c "what_url/ada.cpp" -fPIC -std="c++17" -O2 -o "what_url/ada.o"
+	c++ -c "ada_url/ada.cpp" -fPIC -std="c++17" -O2 -o "ada_url/ada.o"
 	python -m build --no-isolation
 	twine check dist/*

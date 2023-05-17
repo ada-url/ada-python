@@ -1,4 +1,4 @@
-from what_url._ada_wrapper import ffi, lib
+from ada_url._ada_wrapper import ffi, lib
 
 URL_ATTRIBUTES = (
     'href',
@@ -26,7 +26,7 @@ def check_url(s):
 
     .. code-block:: python
 
-        >>> from what_url import check_url
+        >>> from ada_url import check_url
         >>> check_url('bogus')
         False
         >>> check_url('http://a/b/c/d;p?q')
@@ -38,11 +38,11 @@ def check_url(s):
     except Exception:
         return False
 
-    ada_url = lib.ada_parse(s_bytes, len(s_bytes))
+    urlobj = lib.ada_parse(s_bytes, len(s_bytes))
     try:
-        return lib.ada_is_valid(ada_url)
+        return lib.ada_is_valid(urlobj)
     finally:
-        lib.ada_free(ada_url)
+        lib.ada_free(urlobj)
 
 
 def join_url(base_url, s):
@@ -52,7 +52,7 @@ def join_url(base_url, s):
 
     .. code-block:: python
 
-        >>> from what_url import join_url
+        >>> from ada_url import join_url
         >>> base_url = 'http://a/b/c/d;p?q'
         >>> join_url(base_url, '../g')
         'http://a/b/g'
@@ -64,16 +64,14 @@ def join_url(base_url, s):
     except Exception:
         raise ValueError('Invalid URL') from None
 
-    ada_url = lib.ada_parse_with_base(
-        s_bytes, len(s_bytes), base_bytes, len(base_bytes)
-    )
+    urlobj = lib.ada_parse_with_base(s_bytes, len(s_bytes), base_bytes, len(base_bytes))
     try:
-        if not lib.ada_is_valid(ada_url):
+        if not lib.ada_is_valid(urlobj):
             raise ValueError('Invalid URL') from None
 
-        return _get_str(lib.ada_get_href(ada_url))
+        return _get_str(lib.ada_get_href(urlobj))
     finally:
-        lib.ada_free(ada_url)
+        lib.ada_free(urlobj)
 
 
 def normalize_url(s):
@@ -82,7 +80,7 @@ def normalize_url(s):
 
     .. code-block:: python
 
-        >>> from what_url import normalize_url
+        >>> from ada_url import normalize_url
         >>> normalize_url('http://a/b/c/../g')
         'http://a/b/g'
 
@@ -96,7 +94,7 @@ def parse_url(s, attributes=PARSE_ATTRIBUTES):
 
     .. code-block:: python
 
-        >>> from what_url import parse_url
+        >>> from ada_url import parse_url
         >>> url = 'https://user_1:password_1@example.org:8080/dir/../api?q=1#frag'
         >>> parse_url(url)
         {
@@ -120,7 +118,7 @@ def parse_url(s, attributes=PARSE_ATTRIBUTES):
 
     .. code-block:: python
 
-        >>> from what_url import parse_url
+        >>> from ada_url import parse_url
         >>> url = 'https://user_1:password_1@example.org:8080/dir/../api?q=1#frag'
         >>> parse_url(url, attributes=('protocol'))
         {'protocol': 'https:'}
@@ -134,19 +132,19 @@ def parse_url(s, attributes=PARSE_ATTRIBUTES):
         raise ValueError('Invalid URL') from None
 
     ret = {}
-    ada_url = lib.ada_parse(s_bytes, len(s_bytes))
+    urlobj = lib.ada_parse(s_bytes, len(s_bytes))
     try:
-        if not lib.ada_is_valid(ada_url):
+        if not lib.ada_is_valid(urlobj):
             raise ValueError('Invalid URL') from None
 
         for attr in attributes:
             get_func = getattr(lib, f'ada_get_{attr}')
-            data = get_func(ada_url)
+            data = get_func(urlobj)
             ret[attr] = _get_str(data)
             if attr == 'origin':
                 lib.ada_free_owned_string(data)
     finally:
-        lib.ada_free(ada_url)
+        lib.ada_free(urlobj)
 
     return ret
 
@@ -160,7 +158,7 @@ def replace_url(s, **kwargs):
 
     .. code-block:: python
 
-        >>> from what_url import replace_url
+        >>> from ada_url import replace_url
         >>> base_url = 'https://user_1:password_1@example.org/resource'
         >>> replace_url(base_url, username='user_2', protocol='http:')
         'http://user_2:password_1@example.org/resource'
@@ -174,9 +172,9 @@ def replace_url(s, **kwargs):
     except Exception:
         raise ValueError('Invalid URL') from None
 
-    ada_url = lib.ada_parse(s_bytes, len(s_bytes))
+    urlobj = lib.ada_parse(s_bytes, len(s_bytes))
     try:
-        if not lib.ada_is_valid(ada_url):
+        if not lib.ada_is_valid(urlobj):
             raise ValueError('Invalid URL') from None
 
         for attr in URL_ATTRIBUTES:
@@ -190,10 +188,10 @@ def replace_url(s, **kwargs):
                 raise ValueError(f'Invalid value for {attr}') from None
 
             set_func = getattr(lib, f'ada_set_{attr}')
-            set_result = set_func(ada_url, value_bytes, len(value_bytes))
+            set_result = set_func(urlobj, value_bytes, len(value_bytes))
             if (set_result is not None) and (not set_result):
                 raise ValueError(f'Invalid value for {attr}') from None
 
-        return _get_str(lib.ada_get_href(ada_url))
+        return _get_str(lib.ada_get_href(urlobj))
     finally:
-        lib.ada_free(ada_url)
+        lib.ada_free(urlobj)

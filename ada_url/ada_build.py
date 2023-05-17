@@ -8,7 +8,7 @@ libraries = ['stdc++'] if platform == 'linux' else []
 
 ffi_builder = FFI()
 ffi_builder.set_source(
-    'what_url._ada_wrapper',
+    'ada_url._ada_wrapper',
     '# include "ada_c.h"',
     include_dirs=[file_dir],
     libraries=libraries,
