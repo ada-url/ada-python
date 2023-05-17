@@ -1,6 +1,7 @@
 from unittest import TestCase
 
 from ada_url import (
+    URL,
     check_url,
     join_url,
     normalize_url,
@@ -10,6 +11,81 @@ from ada_url import (
 
 
 class ADAURLTests(TestCase):
+    def test_class_get(self):
+        url = 'https://user_1:password_1@example.org:8080/dir/../api?q=1#frag'
+        with URL(url) as urlobj:
+            self.assertEqual(
+                urlobj.href, 'https://user_1:password_1@example.org:8080/api?q=1#frag'
+            )
+            self.assertEqual(urlobj.username, 'user_1')
+            self.assertEqual(urlobj.password, 'password_1')
+            self.assertEqual(urlobj.protocol, 'https:')
+            self.assertEqual(urlobj.port, '8080')
+            self.assertEqual(urlobj.hostname, 'example.org')
+            self.assertEqual(urlobj.host, 'example.org:8080')
+            self.assertEqual(urlobj.pathname, '/api')
+            self.assertEqual(urlobj.search, '?q=1')
+            self.assertEqual(urlobj.hash, '#frag')
+            self.assertEqual(urlobj.origin, 'https://example.org:8080')
+
+            with self.assertRaises(AttributeError):
+                urlobj.bogus
+
+    def test_class_set(self):
+        url = 'https://username:password@www.google.com:8080/'
+        with URL(url) as urlobj:
+            urlobj.href = 'https://www.yagiz.co'
+            urlobj.hash = 'new-hash'
+            urlobj.hostname = 'new-host'
+            urlobj.host = 'changed-host:9090'
+            urlobj.pathname = 'new-pathname'
+            urlobj.search = 'new-search'
+            urlobj.protocol = 'wss'
+            actual = urlobj.href
+
+            with self.assertRaises(ValueError):
+                urlobj.hostname = 1
+
+            with self.assertRaises(ValueError):
+                urlobj.hostname = '127.0.0.0.0.1'
+
+        expected = 'wss://changed-host:9090/new-pathname?new-search#new-hash'
+        self.assertEqual(actual, expected)
+
+    def test_class_with_base(self):
+        url = '../example.txt'
+        base = 'https://example.org/path/'
+        with URL(url, base) as urlobj:
+            self.assertEqual(urlobj.href, 'https://example.org/example.txt')
+
+    def test_class_invalid(self):
+        with self.assertRaises(ValueError):
+            with URL('bogus'):
+                pass
+
+    def test_class_can_parse(self):
+        for url, expected in (
+            (1, False),
+            (None, False),
+            ('bogus', False),
+            ('https://example.org', True),
+        ):
+            with self.subTest(url=url):
+                actual = URL.can_parse(url)
+                self.assertEqual(actual, expected)
+
+    def test_class_can_parse_with_base(self):
+        url = 'example.txt'
+        for base, expected in (
+            ('https://example.org', True),
+            (1, False),
+            (None, False),
+            ('bogus', False),
+        ):
+            with self.subTest(url=url):
+                actual = URL.can_parse(url, base)
+                self.assertEqual(actual, expected)
+
     def test_check_url(self):
         for s, expected in (
             ('https:example.org', True),

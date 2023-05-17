@@ -14,10 +14,135 @@ URL_ATTRIBUTES = (
 )
 PARSE_ATTRIBUTES = URL_ATTRIBUTES + ('origin',)
 
+GET_ATTRIBUTES = frozenset(PARSE_ATTRIBUTES)
+SET_ATTRIBUTES = frozenset(URL_ATTRIBUTES)
+
 
 def _get_str(x):
     ret = ffi.string(x.data, x.length).decode('utf-8') if x.length else ''
     return ret
+
+
+class URL:
+    """
+    Parses a *url* (with an optional *base*) according to the
+    WHATWG URL parsing standard.
+
+    .. code-block:: python
+
+        >>> from ada_url import URL
+        >>> old_url = 'https://example.org:443/file.txt?q=1'
+        >>> with URL(old_url) as urlobj:
+        ...     old_host = urlobj.host
+        ...     urlobj.host = 'example.com'
+        ...     new_url = urlobj.href
+        >>> old_host
+        'example.org'
+        >>> new_url
+        'https://example.com:443/file.txt?q=1'
+
+    Note that you should use this class as a context manager to ensure
+    that resources are freed. If you use it without a ``with``
+    statement, call the ``close()`` method manually.
+
+    You can read and write the following attributes:
+
+    * ``href``
+    * ``protocol``
+    * ``username``
+    * ``password``
+    * ``host``
+    * ``hostname``
+    * ``port``
+    * ``pathname``
+    * ``search``
+
+    You can additionally read the ``origin`` attribute.
+
+    The class also exposes a static method that checks whether the input
+    *url* (and optional *base*) can be parsed:
+
+    .. code-block:: python
+
+        >>> url = 'https://example.org:443/file_1.txt'
+        >>> base = 'file_2.txt'
+        >>> URL.can_parse(url, base)
+        True
+
+    See the `WHATWG docs <https://url.spec.whatwg.org/#url-class>`__ for
+    more details on the URL class.
+
+    """
+
+    def __init__(self, url, base=None):
+        url_bytes = url.encode('utf-8')
+
+        if base is None:
+            self.urlobj = lib.ada_parse(url_bytes, len(url_bytes))
+        else:
+            base_bytes = base.encode('utf-8')
+            self.urlobj = lib.ada_parse_with_base(
+                url_bytes, len(url_bytes), base_bytes, len(base_bytes)
+            )
+
+        if not lib.ada_is_valid(self.urlobj):
+            raise ValueError('Invlid input')
+
+    def __getattr__(self, attr):
+        if attr in GET_ATTRIBUTES:
+            get_func = getattr(lib, f'ada_get_{attr}')
+            data = get_func(self.urlobj)
+            ret = _get_str(data)
+            if attr == 'origin':
+                lib.ada_free_owned_string(data)
+
+            return ret
+
+        return super().__getattr__(self, attr)
+
+    def __setattr__(self, attr, value):
+        if attr in SET_ATTRIBUTES:
+            try:
+                value_bytes = value.encode()
+            except Exception:
+                raise ValueError(f'Invalid value for {attr}') from None
+
+            set_func = getattr(lib, f'ada_set_{attr}')
+            ret = set_func(self.urlobj, value_bytes, len(value_bytes))
+            if (ret is not None) and (not ret):
+                raise ValueError(f'Invalid value for {attr}') from None
+
+            return ret
+
+        return super().__setattr__(attr, value)
+
+    def close(self):
+        lib.ada_free(self.urlobj)
+
+    def __enter__(self, *args, **kwargs):
+        return self
+
+    def __exit__(self, *args, **kwargs):
+        self.close()
+
+    @staticmethod
+    def can_parse(url, base=None):
+        try:
+            url_bytes = url.encode('utf-8')
+        except Exception:
+            return False
+
+        if base is None:
+            return lib.ada_can_parse(url_bytes, len(url_bytes))
+
+        try:
+            base_bytes = base.encode('utf-8')
+        except Exception:
+            return False
+
+        return lib.ada_can_parse_with_base(
+            url_bytes, len(url_bytes), base_bytes, len(base_bytes)
+        )
 
 
 def check_url(s):

@@ -1,4 +1,5 @@
 from ada_url.ada_adapter import (
+    URL,
     check_url,
     join_url,
     normalize_url,
@@ -7,6 +8,7 @@ from ada_url.ada_adapter import (
 )
 
 __all__ = [
+    'URL',
     'check_url',
     'join_url',
     'normalize_url',

@@ -3,8 +3,23 @@ ada-url
 
 This is ``ada_url``, a Python library for parsing and joining URLs.
 
+
 Examples
 --------
+
+This package exposes a ``URL`` class that is intended to match the one described in the
+`WHATWG URL spec <https://url.spec.whatwg.org/#url-class>`__.
+
+.. code-block:: python
+
+    >>> import ada_url
+    >>> with ada_url.URL('https://example.org/path/../file.txt') as urlobj:
+    ...     urlobj.host = 'example.com'
+    ...     new_url = urlobj.href
+    >>> new_url
+    'https://example.com/file.txt'
+
+It also provides some higher level functions for parsing and manipulating URLs.
 
 .. code-block:: python
 
