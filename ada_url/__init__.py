@@ -1,4 +1,4 @@
-from what_url.ada_adapter import (
+from ada_url.ada_adapter import (
     check_url,
     join_url,
     normalize_url,
