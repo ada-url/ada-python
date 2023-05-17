@@ -45,3 +45,5 @@ It also provides some higher level functions for parsing and manipulating URLs.
         'search': '?q=1',
         'hash': '#2'
     }
+    >>> ada_url.replace_url('http://example.org:80', protocol='https:')
+    'https://example.org/'

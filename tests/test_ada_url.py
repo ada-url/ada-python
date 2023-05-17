@@ -242,6 +242,12 @@ class ADAURLTests(TestCase):
                 actual = replace_url(s, **kwargs)
                 self.assertEqual(actual, expected)
 
+    def test_replace_blank(self):
+        s = 'https://user:pass@example.org'
+        actual = replace_url(s, username='', password='')
+        expected = 'https://example.org/'
+        self.assertEqual(actual, expected)
+
     def test_replace_href(self):
         s = 'https://username:password@www.google.com:8080/'
         kwargs = {

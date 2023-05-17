@@ -304,7 +304,7 @@ def replace_url(s, **kwargs):
 
         for attr in URL_ATTRIBUTES:
             value = kwargs.get(attr)
-            if not value:
+            if value is None:
                 continue
 
             try:
