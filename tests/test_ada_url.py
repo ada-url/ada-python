@@ -8,6 +8,7 @@ from ada_url import (
     parse_url,
     replace_url,
 )
+from ada_url.ada_adapter import GET_ATTRIBUTES
 
 
 class ADAURLTests(TestCase):
@@ -85,6 +86,12 @@ class ADAURLTests(TestCase):
             with self.subTest(url=url):
                 actual = URL.can_parse(url, base)
                 self.assertEqual(actual, expected)
+
+    def test_class_dir(self):
+        with URL('https://example.org') as urlobj:
+            actual = set(dir(urlobj))
+
+        self.assertTrue(actual.issuperset(GET_ATTRIBUTES))
 
     def test_check_url(self):
         for s, expected in (
