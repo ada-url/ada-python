@@ -42,7 +42,7 @@ jobs:
       if: "matrix.os == 'ubuntu-20.04'"
       run: |
         pip install -U auditwheel patchelf
-        auditwheel repair --plat manylinux_2_31_x86_64 --wheel-dir dist dist/ada_url-*linux*.whl
+        auditwheel repair --plat manylinux_2_24_x86_64 --wheel-dir dist dist/ada_url-*linux*.whl
     - name: Run tests
       run: |
         pip install -e .
