@@ -40,9 +40,9 @@ This package exposes a ``URL`` class that is intended to match the one described
 .. code-block:: python
 
     >>> import ada_url
-    >>> with ada_url.URL('https://example.org/path/../file.txt') as urlobj:
-    ...     urlobj.host = 'example.com'
-    ...     new_url = urlobj.href
+    >>> ada_url.URL('https://example.org/path/../file.txt') as urlobj:
+    >>> urlobj.host = 'example.com'
+    >>> new_url = urlobj.href
     >>> new_url
     'https://example.com/file.txt'
 
