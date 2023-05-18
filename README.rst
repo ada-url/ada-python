@@ -1,6 +1,6 @@
 ada-url
 ========
-[![Build and test](https://github.com/ada-url/python/actions/workflows/build_test.yml/badge.svg)](https://github.com/ada-url/python/actions/workflows/build_test.yml)
+
 
 This is ``ada_url``, a Python library for parsing and joining URLs.
 
