@@ -88,6 +88,9 @@ class URL:
         if not lib.ada_is_valid(self.urlobj):
             raise ValueError('Invalid input')
 
+    def __dir__(self):
+        return super().__dir__() + list(PARSE_ATTRIBUTES)
+
     def __getattr__(self, attr):
         if attr in GET_ATTRIBUTES:
             get_func = getattr(lib, f'ada_get_{attr}')
