@@ -18,6 +18,12 @@ GET_ATTRIBUTES = frozenset(PARSE_ATTRIBUTES)
 SET_ATTRIBUTES = frozenset(URL_ATTRIBUTES)
 
 
+def _get_urlobj(constructor, *args):
+    urlobj = constructor(*args)
+
+    return ffi.gc(urlobj, lib.ada_free)
+
+
 def _get_str(x):
     ret = ffi.string(x.data, x.length).decode('utf-8') if x.length else ''
     return ret
@@ -32,18 +38,13 @@ class URL:
 
         >>> from ada_url import URL
         >>> old_url = 'https://example.org:443/file.txt?q=1'
-        >>> with URL(old_url) as urlobj:
-        ...     old_host = urlobj.host
-        ...     urlobj.host = 'example.com'
-        ...     new_url = urlobj.href
-        >>> old_host
+        >>> urlobj = URL(old_url)
+        >>> urlobj.host
         'example.org'
+        >>> urlobj.host = 'example.com'
+        >>> new_url = urlobj.href
         >>> new_url
         'https://example.com:443/file.txt?q=1'
-
-    Note that you should use this class as a context manager to ensure
-    that resources are freed. If you use it without a ``with``
-    statement, call the ``close()`` method manually.
 
     You can read and write the following attributes:
 
@@ -78,11 +79,15 @@ class URL:
         url_bytes = url.encode('utf-8')
 
         if base is None:
-            self.urlobj = lib.ada_parse(url_bytes, len(url_bytes))
+            self.urlobj = _get_urlobj(lib.ada_parse, url_bytes, len(url_bytes))
         else:
             base_bytes = base.encode('utf-8')
-            self.urlobj = lib.ada_parse_with_base(
-                url_bytes, len(url_bytes), base_bytes, len(base_bytes)
+            self.urlobj = _get_urlobj(
+                lib.ada_parse_with_base,
+                url_bytes,
+                len(url_bytes),
+                base_bytes,
+                len(base_bytes),
             )
 
         if not lib.ada_is_valid(self.urlobj):
@@ -118,15 +123,6 @@ class URL:
             return ret
 
         return super().__setattr__(attr, value)
-
-    def close(self):
-        lib.ada_free(self.urlobj)
-
-    def __enter__(self, *args, **kwargs):
-        return self
-
-    def __exit__(self, *args, **kwargs):
-        self.close()
 
     @staticmethod
     def can_parse(url, base=None):
@@ -166,11 +162,8 @@ def check_url(s):
     except Exception:
         return False
 
-    urlobj = lib.ada_parse(s_bytes, len(s_bytes))
-    try:
-        return lib.ada_is_valid(urlobj)
-    finally:
-        lib.ada_free(urlobj)
+    urlobj = _get_urlobj(lib.ada_parse, s_bytes, len(s_bytes))
+    return lib.ada_is_valid(urlobj)
 
 
 def join_url(base_url, s):
@@ -192,14 +185,13 @@ def join_url(base_url, s):
     except Exception:
         raise ValueError('Invalid URL') from None
 
-    urlobj = lib.ada_parse_with_base(s_bytes, len(s_bytes), base_bytes, len(base_bytes))
-    try:
-        if not lib.ada_is_valid(urlobj):
-            raise ValueError('Invalid URL') from None
+    urlobj = _get_urlobj(
+        lib.ada_parse_with_base, s_bytes, len(s_bytes), base_bytes, len(base_bytes)
+    )
+    if not lib.ada_is_valid(urlobj):
+        raise ValueError('Invalid URL') from None
 
-        return _get_str(lib.ada_get_href(urlobj))
-    finally:
-        lib.ada_free(urlobj)
+    return _get_str(lib.ada_get_href(urlobj))
 
 
 def normalize_url(s):
@@ -260,19 +252,16 @@ def parse_url(s, attributes=PARSE_ATTRIBUTES):
         raise ValueError('Invalid URL') from None
 
     ret = {}
-    urlobj = lib.ada_parse(s_bytes, len(s_bytes))
-    try:
-        if not lib.ada_is_valid(urlobj):
-            raise ValueError('Invalid URL') from None
+    urlobj = _get_urlobj(lib.ada_parse, s_bytes, len(s_bytes))
+    if not lib.ada_is_valid(urlobj):
+        raise ValueError('Invalid URL') from None
 
-        for attr in attributes:
-            get_func = getattr(lib, f'ada_get_{attr}')
-            data = get_func(urlobj)
-            ret[attr] = _get_str(data)
-            if attr == 'origin':
-                lib.ada_free_owned_string(data)
-    finally:
-        lib.ada_free(urlobj)
+    for attr in attributes:
+        get_func = getattr(lib, f'ada_get_{attr}')
+        data = get_func(urlobj)
+        ret[attr] = _get_str(data)
+        if attr == 'origin':
+            lib.ada_free_owned_string(data)
 
     return ret
 
@@ -300,26 +289,23 @@ def replace_url(s, **kwargs):
     except Exception:
         raise ValueError('Invalid URL') from None
 
-    urlobj = lib.ada_parse(s_bytes, len(s_bytes))
-    try:
-        if not lib.ada_is_valid(urlobj):
-            raise ValueError('Invalid URL') from None
+    urlobj = _get_urlobj(lib.ada_parse, s_bytes, len(s_bytes))
+    if not lib.ada_is_valid(urlobj):
+        raise ValueError('Invalid URL') from None
 
-        for attr in URL_ATTRIBUTES:
-            value = kwargs.get(attr)
-            if value is None:
-                continue
+    for attr in URL_ATTRIBUTES:
+        value = kwargs.get(attr)
+        if value is None:
+            continue
 
-            try:
-                value_bytes = value.encode()
-            except Exception:
-                raise ValueError(f'Invalid value for {attr}') from None
+        try:
+            value_bytes = value.encode()
+        except Exception:
+            raise ValueError(f'Invalid value for {attr}') from None
 
-            set_func = getattr(lib, f'ada_set_{attr}')
-            set_result = set_func(urlobj, value_bytes, len(value_bytes))
-            if (set_result is not None) and (not set_result):
-                raise ValueError(f'Invalid value for {attr}') from None
+        set_func = getattr(lib, f'ada_set_{attr}')
+        set_result = set_func(urlobj, value_bytes, len(value_bytes))
+        if (set_result is not None) and (not set_result):
+            raise ValueError(f'Invalid value for {attr}') from None
 
-        return _get_str(lib.ada_get_href(urlobj))
-    finally:
-        lib.ada_free(urlobj)
+    return _get_str(lib.ada_get_href(urlobj))
