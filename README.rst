@@ -5,6 +5,32 @@ ada-url
 This is ``ada_url``, a Python library for parsing and joining URLs.
 
 
+WHATWG URL compliance
+---------------------
+
+Unlike the standard library's ``urllib.parse`` module, this library is compliant with the WHATWG URL spec.
+
+.. code-block:: python
+
+    urlstring = "https://www.GOoglé.com/./path/../path2/"
+
+    import ada_url
+
+    # prints www.xn--googl-fsa.com,
+    # the correctly parsed domain name according to WHATWG
+    print(ada_url.URL(urlstring).hostname)
+    # prints /path2/
+    # the correctly parsed pathname according to WHATWG
+    print(ada_url.URL(urlstring).pathname)
+
+    import urllib
+
+    #prints www.googlé.com
+    print(urllib.parse.urlparse(urlstring).hostname)
+    #prints /./path/../path2/
+    print(urllib.parse.urlparse(urlstring).path)
+
+
 Examples
 --------
 
