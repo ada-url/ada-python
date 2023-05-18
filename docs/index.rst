@@ -15,7 +15,7 @@ Clone the git repository to a directory for development:
 
 .. code-block:: sh
 
-    git clone https://github.com/ada-url/python/ ada_url_python
+    git clone https://github.com/ada-url/ada-python.git ada_url_python
     cd ada_url_python
 
 Create a virtual environment to use for building:

@@ -14,7 +14,7 @@ readme_src = os.path.join(parent_dir, 'README.rst')
 readme_dst = os.path.join(build_dir, 'README.pprst')
 shutil.copyfile(readme_src, readme_dst)
 
-project = 'ada-url/python'
+project = 'ada-url/ada-python'
 copyright = '2023, Ada authors'
 author = 'Ada authors'
 
