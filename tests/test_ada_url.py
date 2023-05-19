@@ -91,6 +91,18 @@ class ADAURLTests(TestCase):
         actual = set(dir(urlobj))
         self.assertTrue(actual.issuperset(GET_ATTRIBUTES))
 
+    def test_to_str(self):
+        urlobj = URL('https://example.org/../something.txt')
+        actual = str(urlobj)
+        expected = 'https://example.org/something.txt'
+        self.assertEqual(actual, expected)
+
+    def test_to_repr(self):
+        urlobj = URL('https://example.org/../something.txt')
+        actual = repr(urlobj)
+        expected = '<URL "https://example.org/something.txt">'
+        self.assertEqual(actual, expected)
+
     def test_check_url(self):
         for s, expected in (
             ('https:example.org', True),

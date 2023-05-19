@@ -124,6 +124,12 @@ class URL:
 
         return super().__setattr__(attr, value)
 
+    def __str__(self):
+        return self.href
+
+    def __repr__(self):
+        return f'<URL "{self.href}">'
+
     @staticmethod
     def can_parse(url, base=None):
         try:
