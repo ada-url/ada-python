@@ -33,6 +33,7 @@ jobs:
     - name: Build wheels
       uses: pypa/cibuildwheel@v2.12.3
     - name: Upload packages
+      if: github.event_name == 'push'
       uses: actions/upload-artifact@v3
       with:
         name: ada-url-packages
