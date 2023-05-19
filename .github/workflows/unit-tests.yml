@@ -1,4 +1,4 @@
-name: Build and test
+name: Unit tests
 
 on:
   pull_request:
@@ -21,38 +21,26 @@ jobs:
   build_test:
     strategy:
       matrix:
-        os: ["ubuntu-20.04", "macos-latest"]
-        python: ["3.8", "3.9", "3.10", "3.11"]
+        os: ["ubuntu-20.04", "macos-11"]
 
     runs-on: ${{ matrix.os }}
 
     steps:
     - uses: actions/checkout@v3
-    - name: Set up Python ${{ matrix.python }}
+    - name: Set up Python 3.8
       uses: actions/setup-python@v4
       with:
-        python-version: ${{ matrix.python }}
+        python-version: "3.8"
     - name: Install dependencies
       run: |
         make requirements
     - name: Build packages
       run: |
         make package
-    - name: Repair wheels
-      if: "matrix.os == 'ubuntu-20.04'"
-      run: |
-        pip install -U auditwheel patchelf
-        auditwheel repair --plat manylinux_2_24_x86_64 --wheel-dir dist dist/ada_url-*linux*.whl
     - name: Run tests
       run: |
         pip install -e .
         make coverage
-    - name: Build docs with sphinx
-      if: "matrix.python == '3.8' && matrix.os == 'ubuntu-20.04'"
+    - name: Check docs
       run: |
         make docs
-    - name: Upload packages
-      uses: actions/upload-artifact@v3
-      with:
-        name: ada-url-packages
-        path: dist/*

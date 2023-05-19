@@ -32,8 +32,11 @@ clean:
 	$(RM) ada_url/_ada_wrapper.abi3.so
 	$(RM) ada_url/ada.o
 
-.PHONY: package
-package:
+.PHONY: c_lib
+c_lib:
 	$(CXX) -c "ada_url/ada.cpp" -fPIC -std="c++17" -O2 -o "ada_url/ada.o"
+
+.PHONY: package
+package: c_lib
 	python -m build --no-isolation
 	twine check dist/*
