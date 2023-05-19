@@ -93,36 +93,106 @@ class URL:
         if not lib.ada_is_valid(self.urlobj):
             raise ValueError('Invalid input')
 
-    def __dir__(self):
-        return super().__dir__() + list(PARSE_ATTRIBUTES)
-
-    def __getattr__(self, attr):
-        if attr in GET_ATTRIBUTES:
-            get_func = getattr(lib, f'ada_get_{attr}')
-            data = get_func(self.urlobj)
-            ret = _get_str(data)
-            if attr == 'origin':
-                lib.ada_free_owned_string(data)
-
-            return ret
-
-        return super().__getattr__(self, attr)
-
-    def __setattr__(self, attr, value):
-        if attr in SET_ATTRIBUTES:
-            try:
-                value_bytes = value.encode()
-            except Exception:
-                raise ValueError(f'Invalid value for {attr}') from None
-
-            set_func = getattr(lib, f'ada_set_{attr}')
+    def _setter(self, attr, set_func, value):
+        try:
+            value_bytes = value.encode('utf-8')
+        except Exception:
+            ret = False
+        else:
             ret = set_func(self.urlobj, value_bytes, len(value_bytes))
-            if (ret is not None) and (not ret):
-                raise ValueError(f'Invalid value for {attr}') from None
 
-            return ret
+        if (ret is not None) and (not ret):
+            raise ValueError(f'Invalid value for {attr}') from None
 
-        return super().__setattr__(attr, value)
+        return ret
+
+    @property
+    def href(self):
+        return _get_str(lib.ada_get_href(self.urlobj))
+
+    @href.setter
+    def href(self, value):
+        return self._setter('href', lib.ada_set_href, value)
+
+    @property
+    def username(self):
+        return _get_str(lib.ada_get_username(self.urlobj))
+
+    @username.setter
+    def username(self, value):
+        return self._setter('username', lib.ada_set_username, value)
+
+    @property
+    def password(self):
+        return _get_str(lib.ada_get_password(self.urlobj))
+
+    @password.setter
+    def password(self, value):
+        return self._setter('password', lib.ada_set_password, value)
+
+    @property
+    def protocol(self):
+        return _get_str(lib.ada_get_protocol(self.urlobj))
+
+    @protocol.setter
+    def protocol(self, value):
+        return self._setter('protocol', lib.ada_set_protocol, value)
+
+    @property
+    def port(self):
+        return _get_str(lib.ada_get_port(self.urlobj))
+
+    @port.setter
+    def port(self, value):
+        return self._setter('port', lib.ada_set_port, value)
+
+    @property
+    def hostname(self):
+        return _get_str(lib.ada_get_hostname(self.urlobj))
+
+    @hostname.setter
+    def hostname(self, value):
+        return self._setter('hostname', lib.ada_set_hostname, value)
+
+    @property
+    def host(self):
+        return _get_str(lib.ada_get_host(self.urlobj))
+
+    @host.setter
+    def host(self, value):
+        return self._setter('host', lib.ada_set_host, value)
+
+    @property
+    def pathname(self):
+        return _get_str(lib.ada_get_pathname(self.urlobj))
+
+    @pathname.setter
+    def pathname(self, value):
+        return self._setter('pathname', lib.ada_set_pathname, value)
+
+    @property
+    def search(self):
+        return _get_str(lib.ada_get_search(self.urlobj))
+
+    @search.setter
+    def search(self, value):
+        return self._setter('search', lib.ada_set_search, value)
+
+    @property
+    def hash(self):
+        return _get_str(lib.ada_get_hash(self.urlobj))
+
+    @hash.setter
+    def hash(self, value):
+        return self._setter('hash', lib.ada_set_hash, value)
+
+    @property
+    def origin(self):
+        data = lib.ada_get_origin(self.urlobj)
+        try:
+            return _get_str(data)
+        finally:
+            lib.ada_free_owned_string(data)
 
     @staticmethod
     def can_parse(url, base=None):
