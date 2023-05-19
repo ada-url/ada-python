@@ -123,7 +123,7 @@ class URL:
             return ret
 
         return super().__setattr__(attr, value)
-    
+
     def __str__(self):
         return self.href
 
