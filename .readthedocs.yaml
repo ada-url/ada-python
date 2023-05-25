@@ -8,6 +8,7 @@ build:
     pre_install:
       - make requirements
       - make package
+      - python -m pip install -e .
 sphinx:
    configuration: docs/conf.py
 
