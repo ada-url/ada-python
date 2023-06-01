@@ -65,8 +65,8 @@ class URL:
 
     .. code-block:: python
 
-        >>> url = 'https://example.org:443/file_1.txt'
-        >>> base = 'file_2.txt'
+        >>> url = 'file_2.txt'
+        >>> base = 'https://example.org:443/file_1.txt'
         >>> URL.can_parse(url, base)
         True
 
