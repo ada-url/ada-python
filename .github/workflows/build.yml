@@ -12,10 +12,9 @@ on:
     paths-ignore:
       - '**.rst'
       - 'docs/**'
-
-   release:
-     types:
-       - published
+  release:
+    types:
+      - published
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
