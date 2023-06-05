@@ -40,8 +40,8 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - run: |
-      make requirements
-      python -m build --no-isolation --sdist
+        make requirements
+        python -m build --no-isolation --sdist
     - uses: actions/upload-artifact@v3
       with:
         path: dist/*.tar.gz
