@@ -13,6 +13,10 @@ on:
       - '**.rst'
       - 'docs/**'
 
+   release:
+     types:
+       - published
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
