@@ -13,6 +13,10 @@ on:
       - '**.rst'
       - 'docs/**'
 
+   release:
+     types:
+       - published
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -21,20 +25,38 @@ jobs:
   build_wheels:
     strategy:
       matrix:
-        os: ["ubuntu-20.04", "macos-11"]
+        os: ["ubuntu-latest", "macos-latest"]
 
     runs-on: ${{ matrix.os }}
-
     steps:
     - uses: actions/checkout@v3
-    - name: Install dependencies
-      run: |
-        make requirements c_lib
-    - name: Build wheels
-      uses: pypa/cibuildwheel@v2.12.3
-    - name: Upload packages
-      if: github.event_name == 'push'
-      uses: actions/upload-artifact@v3
+    - run: make requirements c_lib
+    - uses: pypa/cibuildwheel@v2.13.0
+    - uses: actions/upload-artifact@v3
+      with:
+        path: wheelhouse/*.whl
+
+  make_sdist:
+    runs-on: "ubuntu-latest"
+    steps:
+    - uses: actions/checkout@v3
+    - run: |
+      make requirements
+      python -m build --no-isolation --sdist
+    - uses: actions/upload-artifact@v3
+      with:
+        path: dist/*.tar.gz
+
+  upload_all:
+    needs: [build_wheels, make_sdist]
+    runs-on: "ubuntu-latest"
+    environment: release
+    if: github.event_name == 'release' && github.event.action == 'published'
+    permissions:
+      id-token: write
+    steps:
+    - uses: actions/download-artifact@v3
       with:
         name: ada-url-packages
-        path: wheelhouse/*
+        path: wheelhouse
+    - uses: pypa/gh-action-pypi-publish@release/v1
