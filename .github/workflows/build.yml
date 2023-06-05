@@ -30,7 +30,6 @@ jobs:
     - uses: pypa/cibuildwheel@v2.13.0
     - uses: actions/upload-artifact@v3
       with:
-        name: ada-url-packages
         path: wheelhouse/*.whl
 
   make_sdist:
