@@ -56,6 +56,5 @@ jobs:
     steps:
     - uses: actions/download-artifact@v3
       with:
-        name: ada-url-packages
         path: wheelhouse
     - uses: pypa/gh-action-pypi-publish@release/v1
