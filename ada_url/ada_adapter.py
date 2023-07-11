@@ -18,10 +18,10 @@ GET_ATTRIBUTES = frozenset(PARSE_ATTRIBUTES)
 SET_ATTRIBUTES = frozenset(URL_ATTRIBUTES)
 
 
-def _get_urlobj(constructor, *args):
-    urlobj = constructor(*args)
+def _get_obj(constructor, destructor, *args):
+    obj = constructor(*args)
 
-    return ffi.gc(urlobj, lib.ada_free)
+    return ffi.gc(obj, destructor)
 
 
 def _get_str(x):
@@ -79,11 +79,14 @@ class URL:
         url_bytes = url.encode('utf-8')
 
         if base is None:
-            self.urlobj = _get_urlobj(lib.ada_parse, url_bytes, len(url_bytes))
+            self.urlobj = _get_obj(
+                lib.ada_parse, lib.ada_free, url_bytes, len(url_bytes)
+            )
         else:
             base_bytes = base.encode('utf-8')
-            self.urlobj = _get_urlobj(
+            self.urlobj = _get_obj(
                 lib.ada_parse_with_base,
+                lib.ada_free,
                 url_bytes,
                 len(url_bytes),
                 base_bytes,
@@ -168,7 +171,7 @@ def check_url(s):
     except Exception:
         return False
 
-    urlobj = _get_urlobj(lib.ada_parse, s_bytes, len(s_bytes))
+    urlobj = _get_obj(lib.ada_parse, lib.ada_free, s_bytes, len(s_bytes))
     return lib.ada_is_valid(urlobj)
 
 
@@ -191,8 +194,13 @@ def join_url(base_url, s):
     except Exception:
         raise ValueError('Invalid URL') from None
 
-    urlobj = _get_urlobj(
-        lib.ada_parse_with_base, s_bytes, len(s_bytes), base_bytes, len(base_bytes)
+    urlobj = _get_obj(
+        lib.ada_parse_with_base,
+        lib.ada_free,
+        s_bytes,
+        len(s_bytes),
+        base_bytes,
+        len(base_bytes),
     )
     if not lib.ada_is_valid(urlobj):
         raise ValueError('Invalid URL') from None
@@ -258,7 +266,7 @@ def parse_url(s, attributes=PARSE_ATTRIBUTES):
         raise ValueError('Invalid URL') from None
 
     ret = {}
-    urlobj = _get_urlobj(lib.ada_parse, s_bytes, len(s_bytes))
+    urlobj = _get_obj(lib.ada_parse, lib.ada_free, s_bytes, len(s_bytes))
     if not lib.ada_is_valid(urlobj):
         raise ValueError('Invalid URL') from None
 
@@ -295,7 +303,7 @@ def replace_url(s, **kwargs):
     except Exception:
         raise ValueError('Invalid URL') from None
 
-    urlobj = _get_urlobj(lib.ada_parse, s_bytes, len(s_bytes))
+    urlobj = _get_obj(lib.ada_parse, lib.ada_free, s_bytes, len(s_bytes))
     if not lib.ada_is_valid(urlobj):
         raise ValueError('Invalid URL') from None
 
@@ -315,3 +323,27 @@ def replace_url(s, **kwargs):
             raise ValueError(f'Invalid value for {attr}') from None
 
     return _get_str(lib.ada_get_href(urlobj))
+
+
+def idna_encode(s):
+    try:
+        s_bytes = s.encode('utf-8')
+    except Exception:
+        raise ValueError('Invalid domain') from None
+
+    data = _get_obj(
+        lib.ada_idna_to_ascii, lib.ada_free_owned_string, s_bytes, len(s_bytes)
+    )
+    return _get_str(data)
+
+
+def idna_decode(s):
+    try:
+        s_bytes = s.encode('utf-8')
+    except Exception:
+        raise ValueError('Invalid domain') from None
+
+    data = _get_obj(
+        lib.ada_idna_to_unicode, lib.ada_free_owned_string, s_bytes, len(s_bytes)
+    )
+    return _get_str(data)
