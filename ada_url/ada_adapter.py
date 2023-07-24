@@ -328,20 +328,27 @@ def replace_url(s, **kwargs):
 class idna:
     """Process international domains according to the UTS #46 standard.
 
+    :func:`idna.encode` implements the UTS #46 ``ToASCII`` operation.
+    Its output is a Python ``bytes`` object.
+    It is also available as :func:`idna_to_ascii`.
+
     .. code-block:: python
 
         >>> from ada_url import idna
         >>> idna.encode('meßagefactory.ca')
+        b'xn--meagefactory-m9a.ca'
 
-        >>> old_url = 'https://example.org:443/file.txt?q=1'
-        >>> urlobj = URL(old_url)
-        >>> urlobj.host
-        'example.org'
-        >>> urlobj.host = 'example.com'
-        >>> new_url = urlobj.href
-        >>> new_url
-        'https://example.com:443/file.txt?q=1'
+    :func:`idna.decode` implements the UTS #46 ``ToUnicode`` operation.
+    Its oputput is a Python ``str`` object.
+    It is also available as :func:`idna_to_unicode`.
 
+    .. code-block:: python
+
+        >>> from ada_url import idna
+        >>> idna.decode('xn--meagefactory-m9a.ca')
+        'meßagefactory.ca'
+
+    Both functions accept either ``str`` or ``bytes`` objects as input.
     """
 
     @staticmethod
