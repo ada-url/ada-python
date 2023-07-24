@@ -326,28 +326,38 @@ def replace_url(s, **kwargs):
 
 
 class idna:
+    """Process international domains according to the UTS #46 standard.
+
+    .. code-block:: python
+
+        >>> from ada_url import idna
+        >>> idna.encode('meßagefactory.ca')
+
+        >>> old_url = 'https://example.org:443/file.txt?q=1'
+        >>> urlobj = URL(old_url)
+        >>> urlobj.host
+        'example.org'
+        >>> urlobj.host = 'example.com'
+        >>> new_url = urlobj.href
+        >>> new_url
+        'https://example.com:443/file.txt?q=1'
+
+    """
+
     @staticmethod
     def decode(s):
-        try:
-            s_bytes = s.encode('utf-8')
-        except Exception:
-            raise ValueError('Invalid domain') from None
+        if isinstance(s, str):
+            s = s.encode('ascii')
 
-        data = _get_obj(
-            lib.ada_idna_to_unicode, lib.ada_free_owned_string, s_bytes, len(s_bytes)
-        )
+        data = _get_obj(lib.ada_idna_to_unicode, lib.ada_free_owned_string, s, len(s))
         return _get_str(data)
 
     @staticmethod
     def encode(s):
-        try:
-            s_bytes = s.encode('utf-8')
-        except Exception:
-            raise ValueError('Invalid domain') from None
+        if isinstance(s, str):
+            s = s.encode('utf-8')
 
-        val = _get_obj(
-            lib.ada_idna_to_ascii, lib.ada_free_owned_string, s_bytes, len(s_bytes)
-        )
+        val = _get_obj(lib.ada_idna_to_ascii, lib.ada_free_owned_string, s, len(s))
         return ffi.string(val.data, val.length) if val.length else b''
 
 

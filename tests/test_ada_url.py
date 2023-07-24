@@ -296,12 +296,13 @@ class ADAURLTests(TestCase):
 
     def test_idna_decode(self):
         self.assertEqual(idna.decode('xn--meagefactory-m9a.ca'), 'meßagefactory.ca')
-        self.assertEqual(idna_to_unicode('xn--meagefactory-m9a.ca'), 'meßagefactory.ca')
+        self.assertEqual(
+            idna_to_unicode(b'xn--meagefactory-m9a.ca'), 'meßagefactory.ca'
+        )
 
     def test_idna_encode(self):
         self.assertEqual(idna.encode('meßagefactory.ca'), b'xn--meagefactory-m9a.ca')
-        self.assertEqual(idna_to_ascii('meßagefactory.ca'), b'xn--meagefactory-m9a.ca')
-
-    def test_idna_errors(self):
-        self.assertRaises(ValueError, idna.decode, None)
-        self.assertRaises(ValueError, idna.encode, None)
+        self.assertEqual(
+            idna_to_ascii('meßagefactory.ca'.encode('utf-8')),
+            b'xn--meagefactory-m9a.ca',
+        )
