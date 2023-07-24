@@ -3,8 +3,9 @@ from unittest import TestCase
 from ada_url import (
     URL,
     check_url,
-    idna_decode,
-    idna_encode,
+    idna,
+    idna_to_ascii,
+    idna_to_unicode,
     join_url,
     normalize_url,
     parse_url,
@@ -294,11 +295,13 @@ class ADAURLTests(TestCase):
                     replace_url(s, **kwargs)
 
     def test_idna_decode(self):
-        self.assertEqual(idna_decode('xn--meagefactory-m9a.ca'), 'meßagefactory.ca')
+        self.assertEqual(idna.decode('xn--meagefactory-m9a.ca'), 'meßagefactory.ca')
+        self.assertEqual(idna_to_unicode('xn--meagefactory-m9a.ca'), 'meßagefactory.ca')
 
     def test_idna_encode(self):
-        self.assertEqual(idna_encode('meßagefactory.ca'), 'xn--meagefactory-m9a.ca')
+        self.assertEqual(idna.encode('meßagefactory.ca'), b'xn--meagefactory-m9a.ca')
+        self.assertEqual(idna_to_ascii('meßagefactory.ca'), b'xn--meagefactory-m9a.ca')
 
     def test_idna_errors(self):
-        self.assertRaises(ValueError, idna_decode, None)
-        self.assertRaises(ValueError, idna_encode, None)
+        self.assertRaises(ValueError, idna.decode, None)
+        self.assertRaises(ValueError, idna.encode, None)

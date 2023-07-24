@@ -325,25 +325,32 @@ def replace_url(s, **kwargs):
     return _get_str(lib.ada_get_href(urlobj))
 
 
-def idna_encode(s):
-    try:
-        s_bytes = s.encode('utf-8')
-    except Exception:
-        raise ValueError('Invalid domain') from None
+class idna:
+    @staticmethod
+    def decode(s):
+        try:
+            s_bytes = s.encode('utf-8')
+        except Exception:
+            raise ValueError('Invalid domain') from None
 
-    data = _get_obj(
-        lib.ada_idna_to_ascii, lib.ada_free_owned_string, s_bytes, len(s_bytes)
-    )
-    return _get_str(data)
+        data = _get_obj(
+            lib.ada_idna_to_unicode, lib.ada_free_owned_string, s_bytes, len(s_bytes)
+        )
+        return _get_str(data)
+
+    @staticmethod
+    def encode(s):
+        try:
+            s_bytes = s.encode('utf-8')
+        except Exception:
+            raise ValueError('Invalid domain') from None
+
+        val = _get_obj(
+            lib.ada_idna_to_ascii, lib.ada_free_owned_string, s_bytes, len(s_bytes)
+        )
+        return ffi.string(val.data, val.length) if val.length else b''
 
 
-def idna_decode(s):
-    try:
-        s_bytes = s.encode('utf-8')
-    except Exception:
-        raise ValueError('Invalid domain') from None
+idna_to_unicode = idna.decode
 
-    data = _get_obj(
-        lib.ada_idna_to_unicode, lib.ada_free_owned_string, s_bytes, len(s_bytes)
-    )
-    return _get_str(data)
+idna_to_ascii = idna.encode
