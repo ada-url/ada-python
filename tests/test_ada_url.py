@@ -1,3 +1,4 @@
+from copy import copy, deepcopy
 from unittest import TestCase
 
 from ada_url import (
@@ -47,6 +48,19 @@ class ADAURLTests(TestCase):
                 urlobj = URL(url)
                 self.assertEqual(urlobj.url_host_type, int(expected))
                 self.assertEqual(urlobj.url_host_type, expected)
+
+    def test_copy_vs_deepcopy(self):
+        obj = URL('http://example.org:8080')
+        copied_obj = copy(obj)
+        deepcopied_obj = deepcopy(obj)
+
+        obj.port = '8081'
+        self.assertEqual(copied_obj.port, '8081')
+        self.assertEqual(deepcopied_obj.port, '8080')
+
+        deepcopied_obj.port = '8082'
+        self.assertEqual(copied_obj.port, '8081')
+        self.assertEqual(deepcopied_obj.port, '8082')
 
     def test_class_set(self):
         url = 'https://username:password@www.google.com:8080/'

@@ -124,6 +124,21 @@ class URL:
         if not lib.ada_is_valid(self.urlobj):
             raise ValueError('Invalid input')
 
+    def __copy__(self):
+        cls = self.__class__
+        ret = cls.__new__(cls)
+        ret.__dict__.update(self.__dict__)
+        super(URL, ret).__init__()
+        return ret
+
+    def __deepcopy__(self, memo):
+        cls = self.__class__
+        ret = cls.__new__(cls)
+        super(URL, ret).__init__()
+        ret.urlobj = lib.ada_copy(self.urlobj)
+
+        return ret
+
     def __dir__(self):
         return super().__dir__() + list(PARSE_ATTRIBUTES)
 
