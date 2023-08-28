@@ -1,3 +1,5 @@
+from enum import IntEnum
+
 from ada_url._ada_wrapper import ffi, lib
 
 URL_ATTRIBUTES = (
@@ -12,10 +14,16 @@ URL_ATTRIBUTES = (
     'search',
     'hash',
 )
-PARSE_ATTRIBUTES = URL_ATTRIBUTES + ('origin',)
+PARSE_ATTRIBUTES = URL_ATTRIBUTES + ('origin', 'url_host_type')
 
 GET_ATTRIBUTES = frozenset(PARSE_ATTRIBUTES)
 SET_ATTRIBUTES = frozenset(URL_ATTRIBUTES)
+
+
+class URLHostType(IntEnum):
+    DEFAULT = 0
+    IPV4 = 1
+    IPV6 = 2
 
 
 def _get_obj(constructor, destructor, *args):
@@ -58,7 +66,9 @@ class URL:
     * ``pathname``
     * ``search``
 
-    You can additionally read the ``origin`` attribute.
+    You can additionally read the ``origin`` and ``url_host_type`` attributes.
+    ``url_host_type`` is an enum with 0 for default hosts, 1 for IPv4 hosts, and 2 for
+    IPv6 hosts.
 
     The class also exposes a static method that checks whether the input
     *url* (and optional *base*) can be parsed:
@@ -103,9 +113,13 @@ class URL:
         if attr in GET_ATTRIBUTES:
             get_func = getattr(lib, f'ada_get_{attr}')
             data = get_func(self.urlobj)
-            ret = _get_str(data)
             if attr == 'origin':
+                ret = _get_str(data)
                 lib.ada_free_owned_string(data)
+            elif attr == 'url_host_type':
+                ret = data
+            else:
+                ret = _get_str(data)
 
             return ret
 
@@ -242,11 +256,14 @@ def parse_url(s, attributes=PARSE_ATTRIBUTES):
             'pathname': '/api',
             'search': '?q=1',
             'hash': '#frag'
-            'origin': 'https://example.org:8080'
+            'origin': 'https://example.org:8080',
+            'url_host_type': 0
         }
 
     The names of the dictionary keys correspond to the components of the "URL class"
     in the WHATWG URL spec.
+    ``url_host_type`` is an enum with 0 for default hosts, 1 for IPv4 hosts, and 2 for
+    IPv6 hosts.
 
     Pass in a sequence of *attributes* to limit which keys are returned.
 
@@ -273,9 +290,13 @@ def parse_url(s, attributes=PARSE_ATTRIBUTES):
     for attr in attributes:
         get_func = getattr(lib, f'ada_get_{attr}')
         data = get_func(urlobj)
-        ret[attr] = _get_str(data)
         if attr == 'origin':
+            ret[attr] = _get_str(data)
             lib.ada_free_owned_string(data)
+        elif attr == 'url_host_type':
+            ret[attr] = URLHostType(data)
+        else:
+            ret[attr] = _get_str(data)
 
     return ret
 
