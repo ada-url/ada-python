@@ -83,6 +83,24 @@ class ADAURLTests(TestCase):
         expected = 'wss://changed-host:9090/new-pathname?new-search#new-hash'
         self.assertEqual(actual, expected)
 
+    def test_class_delete(self):
+        url = 'https://user_1:password_1@example.org:8080/dir/../api?q=1#frag'
+        urlobj = URL(url)
+
+        del urlobj.port
+        self.assertEqual(
+            urlobj.href, 'https://user_1:password_1@example.org/api?q=1#frag'
+        )
+
+        del urlobj.hash
+        self.assertEqual(urlobj.href, 'https://user_1:password_1@example.org/api?q=1')
+
+        del urlobj.pathname
+        self.assertEqual(urlobj.href, 'https://user_1:password_1@example.org?q=1')
+
+        del urlobj.search
+        self.assertEqual(urlobj.href, 'https://user_1:password_1@example.org')
+
     def test_class_with_base(self):
         url = '../example.txt'
         base = 'https://example.org/path/'
