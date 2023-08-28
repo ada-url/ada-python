@@ -14,13 +14,13 @@ URL_ATTRIBUTES = (
     'search',
     'hash',
 )
-PARSE_ATTRIBUTES = URL_ATTRIBUTES + ('origin', 'url_host_type')
+PARSE_ATTRIBUTES = URL_ATTRIBUTES + ('origin', 'host_type')
 
 GET_ATTRIBUTES = frozenset(PARSE_ATTRIBUTES)
 SET_ATTRIBUTES = frozenset(URL_ATTRIBUTES)
 
 
-class URLHostType(IntEnum):
+class HostType(IntEnum):
     """
     Enum for URL host types:
 
@@ -30,13 +30,13 @@ class URLHostType(IntEnum):
 
     .. code-block:: python
 
-        >>> from ada_url import URLHostType
-        >>> URLHostType.DEFAULT
-        <URLHostType.DEFAULT: 0>
-        >>> URLHostType.IPV4
-        <URLHostType.IPV4: 1>
-        >>> URLHostType.IPV6
-        <URLHostType.IPV6: 2>
+        >>> from ada_url import HostType
+        >>> HostType.DEFAULT
+        <HostType.DEFAULT: 0>
+        >>> HostType.IPV4
+        <HostType.IPV4: 1>
+        >>> HostType.IPV6
+        <HostType.IPV6: 2>
 
     """
 
@@ -85,8 +85,8 @@ class URL:
     * ``pathname``
     * ``search``
 
-    You can additionally read the ``origin`` and ``url_host_type`` attributes.
-    ``url_host_type`` is a :class:`URLHostType` enum.
+    You can additionally read the ``origin`` and ``host_type`` attributes.
+    ``host_type`` is a :class:`HostType` enum.
 
     The class also exposes a static method that checks whether the input
     *url* (and optional *base*) can be parsed:
@@ -149,7 +149,7 @@ class URL:
             if attr == 'origin':
                 ret = _get_str(data)
                 lib.ada_free_owned_string(data)
-            elif attr == 'url_host_type':
+            elif attr == 'host_type':
                 ret = data
             else:
                 ret = _get_str(data)
@@ -290,12 +290,12 @@ def parse_url(s, attributes=PARSE_ATTRIBUTES):
             'search': '?q=1',
             'hash': '#frag'
             'origin': 'https://example.org:8080',
-            'url_host_type': 0
+            'host_type': 0
         }
 
     The names of the dictionary keys correspond to the components of the "URL class"
     in the WHATWG URL spec.
-    ``url_host_type`` is a :class:`URLHostType` enum.
+    ``host_type`` is a :class:`HostType` enum.
 
     Pass in a sequence of *attributes* to limit which keys are returned.
 
@@ -325,8 +325,8 @@ def parse_url(s, attributes=PARSE_ATTRIBUTES):
         if attr == 'origin':
             ret[attr] = _get_str(data)
             lib.ada_free_owned_string(data)
-        elif attr == 'url_host_type':
-            ret[attr] = URLHostType(data)
+        elif attr == 'host_type':
+            ret[attr] = HostType(data)
         else:
             ret[attr] = _get_str(data)
 

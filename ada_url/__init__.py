@@ -1,6 +1,6 @@
 from ada_url.ada_adapter import (
     URL,
-    URLHostType,
+    HostType,
     check_url,
     idna,
     idna_to_ascii,
@@ -13,7 +13,7 @@ from ada_url.ada_adapter import (
 
 __all__ = [
     'URL',
-    'URLHostType',
+    'HostType',
     'check_url',
     'idna',
     'idna_to_ascii',

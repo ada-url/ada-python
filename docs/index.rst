@@ -51,7 +51,7 @@ API Documentation
 .. automodule:: ada_url
 
 .. autoclass:: URL
-.. autoclass:: URLHostType()
+.. autoclass:: HostType()
 .. autofunction:: check_url
 .. autofunction:: join_url
 .. autofunction:: normalize_url

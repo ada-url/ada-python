@@ -2,8 +2,8 @@ from copy import copy, deepcopy
 from unittest import TestCase
 
 from ada_url import (
+    HostType,
     URL,
-    URLHostType,
     check_url,
     idna,
     idna_to_ascii,
@@ -37,17 +37,17 @@ class ADAURLTests(TestCase):
         with self.assertRaises(AttributeError):
             urlobj.bogus
 
-    def test_class_url_host_type(self):
-        # url_host_type should return an IntEnum, which can be compared to a Python int
+    def test_class_host_type(self):
+        # host_type should return an IntEnum, which can be compared to a Python int
         for url, expected in (
-            ('http://localhost:3000', URLHostType.DEFAULT),
-            ('http://0.0.0.0', URLHostType.IPV4),
-            ('http://[2001:db8:3333:4444:5555:6666:7777:8888]', URLHostType.IPV6),
+            ('http://localhost:3000', HostType.DEFAULT),
+            ('http://0.0.0.0', HostType.IPV4),
+            ('http://[2001:db8:3333:4444:5555:6666:7777:8888]', HostType.IPV6),
         ):
             with self.subTest(url=url):
                 urlobj = URL(url)
-                self.assertEqual(urlobj.url_host_type, int(expected))
-                self.assertEqual(urlobj.url_host_type, expected)
+                self.assertEqual(urlobj.host_type, int(expected))
+                self.assertEqual(urlobj.host_type, expected)
 
     def test_copy_vs_deepcopy(self):
         obj = URL('http://example.org:8080')
@@ -255,7 +255,7 @@ class ADAURLTests(TestCase):
             'search': '?q=1',
             'hash': '#frag',
             'origin': 'https://example.org:8080',
-            'url_host_type': 0,
+            'host_type': 0,
         }
         self.assertEqual(actual, expected)
 
