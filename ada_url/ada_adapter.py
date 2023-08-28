@@ -21,6 +21,25 @@ SET_ATTRIBUTES = frozenset(URL_ATTRIBUTES)
 
 
 class URLHostType(IntEnum):
+    """
+    Enum for URL host types:
+
+    * ``DEFAULT`` hosts like ``https://example.org`` are ``0``.
+    * ``IPV4`` hosts like ``https://192.0.2.1`` are ``1``.
+    * ``IPV6`` hosts like ``https://[2001:db8::]`` are ``2``.
+
+    .. code-block:: python
+
+        >>> from ada_url import URLHostType
+        >>> URLHostType.DEFAULT
+        <URLHostType.DEFAULT: 0>
+        >>> URLHostType.IPV4
+        <URLHostType.IPV4: 1>
+        >>> URLHostType.IPV6
+        <URLHostType.IPV6: 2>
+
+    """
+
     DEFAULT = 0
     IPV4 = 1
     IPV6 = 2
@@ -67,8 +86,7 @@ class URL:
     * ``search``
 
     You can additionally read the ``origin`` and ``url_host_type`` attributes.
-    ``url_host_type`` is an enum with 0 for default hosts, 1 for IPv4 hosts, and 2 for
-    IPv6 hosts.
+    ``url_host_type`` is a :class:`URLHostType` enum.
 
     The class also exposes a static method that checks whether the input
     *url* (and optional *base*) can be parsed:
@@ -262,8 +280,7 @@ def parse_url(s, attributes=PARSE_ATTRIBUTES):
 
     The names of the dictionary keys correspond to the components of the "URL class"
     in the WHATWG URL spec.
-    ``url_host_type`` is an enum with 0 for default hosts, 1 for IPv4 hosts, and 2 for
-    IPv6 hosts.
+    ``url_host_type`` is a :class:`URLHostType` enum.
 
     Pass in a sequence of *attributes* to limit which keys are returned.
 

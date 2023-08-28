@@ -2,6 +2,7 @@ from unittest import TestCase
 
 from ada_url import (
     URL,
+    URLHostType,
     check_url,
     idna,
     idna_to_ascii,
@@ -10,7 +11,6 @@ from ada_url import (
     normalize_url,
     parse_url,
     replace_url,
-    URLHostType,
 )
 from ada_url.ada_adapter import GET_ATTRIBUTES
 
