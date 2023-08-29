@@ -96,10 +96,28 @@ class ADAURLTests(TestCase):
         self.assertEqual(urlobj.href, 'https://user_1:password_1@example.org/api?q=1')
 
         del urlobj.pathname
-        self.assertEqual(urlobj.href, 'https://user_1:password_1@example.org?q=1')
+        self.assertEqual(urlobj.href, 'https://user_1:password_1@example.org/?q=1')
 
         del urlobj.search
-        self.assertEqual(urlobj.href, 'https://user_1:password_1@example.org')
+        self.assertEqual(urlobj.href, 'https://user_1:password_1@example.org/')
+
+        with self.assertRaises(AttributeError):
+            del urlobj.href
+
+    def test_unset(self):
+        url = 'https://user_1:password_1@example.org:8080/dir/../api?q=1#frag'
+        for attr, expected in (
+            ('username', 'https://:password_1@example.org:8080/api?q=1#frag'),
+            ('password', 'https://user_1@example.org:8080/api?q=1#frag'),
+            ('port', 'https://user_1:password_1@example.org/api?q=1#frag'),
+            ('pathname', 'https://user_1:password_1@example.org:8080/?q=1#frag'),
+            ('search', 'https://user_1:password_1@example.org:8080/api#frag'),
+            ('hash', 'https://user_1:password_1@example.org:8080/api?q=1'),
+        ):
+            with self.subTest(attr=attr):
+                urlobj = URL(url)
+                urlobj.__delattr__(attr)
+                self.assertEqual(urlobj.href, expected)
 
     def test_class_with_base(self):
         url = '../example.txt'

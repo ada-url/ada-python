@@ -18,7 +18,8 @@ PARSE_ATTRIBUTES = URL_ATTRIBUTES + ('origin', 'host_type')
 
 GET_ATTRIBUTES = frozenset(PARSE_ATTRIBUTES)
 SET_ATTRIBUTES = frozenset(URL_ATTRIBUTES)
-DELETE_ATTRIBUTES = frozenset(('port', 'hash', 'pathname', 'search'))
+CLEAR_ATTRIBUTES = frozenset(('port', 'hash', 'search'))
+UNSET_ATTRIBUTES = frozenset(('username', 'password', 'pathname'))
 
 
 class HostType(IntEnum):
@@ -141,11 +142,16 @@ class URL:
         return ret
 
     def __delattr__(self, attr):
-        if attr in DELETE_ATTRIBUTES:
+        if attr == 'pathname':
+            lib.ada_set_pathname(self.urlobj, b'', 0)
+        if attr in CLEAR_ATTRIBUTES:
             clear_func = getattr(lib, f'ada_clear_{attr}')
             clear_func(self.urlobj)
+        elif attr in UNSET_ATTRIBUTES:
+            set_func = getattr(lib, f'ada_set_{attr}')
+            set_func(self.urlobj, b'', 0)
         else:
-            super().__delattr__(attr)
+            raise AttributeError(f'cannot remove {attr}')
 
     def __dir__(self):
         return super().__dir__() + list(PARSE_ATTRIBUTES)
@@ -164,7 +170,7 @@ class URL:
 
             return ret
 
-        return super().__getattr__(self, attr)
+        raise AttributeError(f'no attribute named {attr}')
 
     def __setattr__(self, attr, value):
         if attr in SET_ATTRIBUTES:
