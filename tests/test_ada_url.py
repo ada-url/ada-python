@@ -326,7 +326,13 @@ class ADAURLTests(TestCase):
                 actual = replace_url(s, **kwargs)
                 self.assertEqual(actual, expected)
 
-    def test_replace_blank(self):
+    def test_replace_url_clear(self):
+        s = 'https://user_1:password_1@example.org:8443/api?q=1#frag'
+        actual = replace_url(s, port='', hash='', search='')
+        expected = 'https://user_1:password_1@example.org/api'
+        self.assertEqual(actual, expected)
+
+    def test_replace_url_unset(self):
         s = 'https://user:pass@example.org'
         actual = replace_url(s, username='', password='')
         expected = 'https://example.org/'

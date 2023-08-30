@@ -16,10 +16,19 @@ URL_ATTRIBUTES = (
 )
 PARSE_ATTRIBUTES = URL_ATTRIBUTES + ('origin', 'host_type')
 
+# These are the attributes that have corresponding ada_get_* functions
 GET_ATTRIBUTES = frozenset(PARSE_ATTRIBUTES)
+
+# These are the attributes that have corresponding ada_set_* functons
 SET_ATTRIBUTES = frozenset(URL_ATTRIBUTES)
+
+# These are the attributes that can be cleared with one of the ada_clear_* functions
 CLEAR_ATTRIBUTES = frozenset(('port', 'hash', 'search'))
+
+# These are the attributes that must be cleared by setting the empty string
 UNSET_ATTRIBUTES = frozenset(('username', 'password', 'pathname'))
+
+_marker = object()
 
 
 class HostType(IntEnum):
@@ -352,18 +361,19 @@ def replace_url(s, **kwargs):
     Start with the URL represented by *s*, replace the attributes given in the *kwargs*
     mapping, and return a normalized URL with the result.
 
-    Raises ``ValueError`` if the input URL or one of the components is not valid.
+    Provide an empty string to unset an attribute.
 
     .. code-block:: python
 
         >>> from ada_url import replace_url
         >>> base_url = 'https://user_1:password_1@example.org/resource'
-        >>> replace_url(base_url, username='user_2', protocol='http:')
-        'http://user_2:password_1@example.org/resource'
+        >>> replace_url(base_url, username='user_2', password='', protocol='http:')
+        'http://user_2@example.org/resource'
 
     Unrecognized attributes are ignored. ``href`` is replaced first if it is given.
     ``hostname`` is replaced before ``host`` if both are given.
 
+    ``ValueError`` is raised if the input URL or one of the components is not valid.
     """
     try:
         s_bytes = s.encode('utf-8')
@@ -374,9 +384,11 @@ def replace_url(s, **kwargs):
     if not lib.ada_is_valid(urlobj):
         raise ValueError('Invalid URL') from None
 
+    # We process attributes in the order given by the documentation, e.g.
+    # href before anything else.
     for attr in URL_ATTRIBUTES:
-        value = kwargs.get(attr)
-        if value is None:
+        value = kwargs.get(attr, _marker)
+        if value is _marker:
             continue
 
         try:
@@ -384,10 +396,14 @@ def replace_url(s, **kwargs):
         except Exception:
             raise ValueError(f'Invalid value for {attr}') from None
 
-        set_func = getattr(lib, f'ada_set_{attr}')
-        set_result = set_func(urlobj, value_bytes, len(value_bytes))
-        if (set_result is not None) and (not set_result):
-            raise ValueError(f'Invalid value for {attr}') from None
+        if (not value_bytes) and (attr in CLEAR_ATTRIBUTES):
+            clear_func = getattr(lib, f'ada_clear_{attr}')
+            clear_func(urlobj)
+        else:
+            set_func = getattr(lib, f'ada_set_{attr}')
+            set_result = set_func(urlobj, value_bytes, len(value_bytes))
+            if (set_result is not None) and (not set_result):
+                raise ValueError(f'Invalid value for {attr}') from None
 
     return _get_str(lib.ada_get_href(urlobj))
 
