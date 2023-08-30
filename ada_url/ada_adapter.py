@@ -151,8 +151,6 @@ class URL:
         return ret
 
     def __delattr__(self, attr):
-        if attr == 'pathname':
-            lib.ada_set_pathname(self.urlobj, b'', 0)
         if attr in CLEAR_ATTRIBUTES:
             clear_func = getattr(lib, f'ada_clear_{attr}')
             clear_func(self.urlobj)
