@@ -1,6 +1,8 @@
+from copy import copy, deepcopy
 from unittest import TestCase
 
 from ada_url import (
+    HostType,
     URL,
     check_url,
     idna,
@@ -35,6 +37,31 @@ class ADAURLTests(TestCase):
         with self.assertRaises(AttributeError):
             urlobj.bogus
 
+    def test_class_host_type(self):
+        # host_type should return an IntEnum, which can be compared to a Python int
+        for url, expected in (
+            ('http://localhost:3000', HostType.DEFAULT),
+            ('http://0.0.0.0', HostType.IPV4),
+            ('http://[2001:db8:3333:4444:5555:6666:7777:8888]', HostType.IPV6),
+        ):
+            with self.subTest(url=url):
+                urlobj = URL(url)
+                self.assertEqual(urlobj.host_type, int(expected))
+                self.assertEqual(urlobj.host_type, expected)
+
+    def test_copy_vs_deepcopy(self):
+        obj = URL('http://example.org:8080')
+        copied_obj = copy(obj)
+        deepcopied_obj = deepcopy(obj)
+
+        obj.port = '8081'
+        self.assertEqual(copied_obj.port, '8081')
+        self.assertEqual(deepcopied_obj.port, '8080')
+
+        deepcopied_obj.port = '8082'
+        self.assertEqual(copied_obj.port, '8081')
+        self.assertEqual(deepcopied_obj.port, '8082')
+
     def test_class_set(self):
         url = 'https://username:password@www.google.com:8080/'
         urlobj = URL(url)
@@ -55,6 +82,42 @@ class ADAURLTests(TestCase):
 
         expected = 'wss://changed-host:9090/new-pathname?new-search#new-hash'
         self.assertEqual(actual, expected)
+
+    def test_class_delete(self):
+        url = 'https://user_1:password_1@example.org:8080/dir/../api?q=1#frag'
+        urlobj = URL(url)
+
+        del urlobj.port
+        self.assertEqual(
+            urlobj.href, 'https://user_1:password_1@example.org/api?q=1#frag'
+        )
+
+        del urlobj.hash
+        self.assertEqual(urlobj.href, 'https://user_1:password_1@example.org/api?q=1')
+
+        del urlobj.pathname
+        self.assertEqual(urlobj.href, 'https://user_1:password_1@example.org/?q=1')
+
+        del urlobj.search
+        self.assertEqual(urlobj.href, 'https://user_1:password_1@example.org/')
+
+        with self.assertRaises(AttributeError):
+            del urlobj.href
+
+    def test_unset(self):
+        url = 'https://user_1:password_1@example.org:8080/dir/../api?q=1#frag'
+        for attr, expected in (
+            ('username', 'https://:password_1@example.org:8080/api?q=1#frag'),
+            ('password', 'https://user_1@example.org:8080/api?q=1#frag'),
+            ('port', 'https://user_1:password_1@example.org/api?q=1#frag'),
+            ('pathname', 'https://user_1:password_1@example.org:8080/?q=1#frag'),
+            ('search', 'https://user_1:password_1@example.org:8080/api#frag'),
+            ('hash', 'https://user_1:password_1@example.org:8080/api?q=1'),
+        ):
+            with self.subTest(attr=attr):
+                urlobj = URL(url)
+                urlobj.__delattr__(attr)
+                self.assertEqual(urlobj.href, expected)
 
     def test_class_with_base(self):
         url = '../example.txt'
@@ -228,6 +291,7 @@ class ADAURLTests(TestCase):
             'search': '?q=1',
             'hash': '#frag',
             'origin': 'https://example.org:8080',
+            'host_type': 0,
         }
         self.assertEqual(actual, expected)
 
@@ -262,7 +326,13 @@ class ADAURLTests(TestCase):
                 actual = replace_url(s, **kwargs)
                 self.assertEqual(actual, expected)
 
-    def test_replace_blank(self):
+    def test_replace_url_clear(self):
+        s = 'https://user_1:password_1@example.org:8443/api?q=1#frag'
+        actual = replace_url(s, port='', hash='', search='')
+        expected = 'https://user_1:password_1@example.org/api'
+        self.assertEqual(actual, expected)
+
+    def test_replace_url_unset(self):
         s = 'https://user:pass@example.org'
         actual = replace_url(s, username='', password='')
         expected = 'https://example.org/'

@@ -49,4 +49,13 @@ API Documentation
 =================
 
 .. automodule:: ada_url
-    :members:
+
+.. autoclass:: URL
+.. autoclass:: HostType()
+.. autofunction:: check_url
+.. autofunction:: join_url
+.. autofunction:: normalize_url
+.. autofunction:: parse_url
+.. autofunction:: replace_url
+.. autofunction:: idna
+
