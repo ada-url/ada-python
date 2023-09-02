@@ -1,5 +1,5 @@
 from enum import IntEnum
-from typing import Any, Dict, Final, Iterable, List, Optional, TypedDict, Union
+from typing import Final, Iterable, List, Optional, TypedDict, Union
 
 from ada_url._ada_wrapper import ffi, lib
 
