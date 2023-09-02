@@ -1,4 +1,5 @@
 from enum import IntEnum
+from typing import Any, Dict, Final, Iterable, List, Optional, TypedDict, Union
 
 from ada_url._ada_wrapper import ffi, lib
 
@@ -56,6 +57,21 @@ class HostType(IntEnum):
     IPV6 = 2
 
 
+class ParseAttributes(TypedDict, total=False):
+    href: str
+    username: str
+    password: str
+    protocol: str
+    port: str
+    hostname: str
+    host: str
+    pathname: str
+    search: str
+    hash: str
+    origin: str
+    host_type: HostType
+
+
 def _get_obj(constructor, destructor, *args):
     obj = constructor(*args)
 
@@ -95,6 +111,7 @@ class URL:
     * ``port``
     * ``pathname``
     * ``search``
+    * ``hash``
 
     You can additionally read the ``origin`` and ``host_type`` attributes.
     ``host_type`` is a :class:`HostType` enum.
@@ -114,7 +131,20 @@ class URL:
 
     """
 
-    def __init__(self, url, base=None):
+    href: str
+    username: str
+    password: str
+    protocol: str
+    port: str
+    hostname: str
+    host: str
+    pathname: str
+    search: str
+    hash: str
+    origin: Final[str]
+    host_type: Final[HostType]
+
+    def __init__(self, url: str, base: Optional[str] = None):
         url_bytes = url.encode('utf-8')
 
         if base is None:
@@ -150,7 +180,7 @@ class URL:
 
         return ret
 
-    def __delattr__(self, attr):
+    def __delattr__(self, attr: str):
         if attr in CLEAR_ATTRIBUTES:
             clear_func = getattr(lib, f'ada_clear_{attr}')
             clear_func(self.urlobj)
@@ -160,10 +190,10 @@ class URL:
         else:
             raise AttributeError(f'cannot remove {attr}')
 
-    def __dir__(self):
+    def __dir__(self) -> List[str]:
         return super().__dir__() + list(PARSE_ATTRIBUTES)
 
-    def __getattr__(self, attr):
+    def __getattr__(self, attr: str) -> Union[str, HostType]:
         if attr in GET_ATTRIBUTES:
             get_func = getattr(lib, f'ada_get_{attr}')
             data = get_func(self.urlobj)
@@ -179,7 +209,7 @@ class URL:
 
         raise AttributeError(f'no attribute named {attr}')
 
-    def __setattr__(self, attr, value):
+    def __setattr__(self, attr: str, value: str) -> None:
         if attr in SET_ATTRIBUTES:
             try:
                 value_bytes = value.encode()
@@ -202,7 +232,7 @@ class URL:
         return f'<URL "{self.href}">'
 
     @staticmethod
-    def can_parse(url, base=None):
+    def can_parse(url: str, base: Optional[str] = None) -> bool:
         try:
             url_bytes = url.encode('utf-8')
         except Exception:
@@ -221,7 +251,7 @@ class URL:
         )
 
 
-def check_url(s):
+def check_url(s: str) -> bool:
     """
     Returns ``True`` if *s* represents a valid URL, and ``False`` otherwise.
 
@@ -243,7 +273,7 @@ def check_url(s):
     return lib.ada_is_valid(urlobj)
 
 
-def join_url(base_url, s):
+def join_url(base_url: str, s: str) -> str:
     """
     Return the URL that results from joining *base_url* to *s*.
     Raises ``ValueError`` if no valid URL can be constructed.
@@ -276,7 +306,7 @@ def join_url(base_url, s):
     return _get_str(lib.ada_get_href(urlobj))
 
 
-def normalize_url(s):
+def normalize_url(s: str) -> str:
     """
     Returns a "normalized" URL with all ``'..'`` and ``'/'`` characters resolved.
 
@@ -290,7 +320,9 @@ def normalize_url(s):
     return parse_url(s, attributes=('href',))['href']
 
 
-def parse_url(s, attributes=PARSE_ATTRIBUTES):
+# FIXME constrain `attributes``
+# FIXME sync `attributes` with return record
+def parse_url(s: str, attributes: Iterable[str] = PARSE_ATTRIBUTES) -> ParseAttributes:
     """
     Returns a dictionary with the parsed components of the URL represented by *s*.
 
@@ -354,7 +386,8 @@ def parse_url(s, attributes=PARSE_ATTRIBUTES):
     return ret
 
 
-def replace_url(s, **kwargs):
+# FIXME constrain key of `**kwargs` by `URL_ATTRIBUTES`
+def replace_url(s: str, **kwargs: str) -> str:
     """
     Start with the URL represented by *s*, replace the attributes given in the *kwargs*
     mapping, and return a normalized URL with the result.
@@ -433,7 +466,7 @@ class idna:
     """
 
     @staticmethod
-    def decode(s):
+    def decode(s: Union[str, bytes]) -> str:
         if isinstance(s, str):
             s = s.encode('ascii')
 
@@ -441,7 +474,7 @@ class idna:
         return _get_str(data)
 
     @staticmethod
-    def encode(s):
+    def encode(s: Union[str, bytes]) -> str:
         if isinstance(s, str):
             s = s.encode('utf-8')
 
