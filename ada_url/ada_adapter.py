@@ -320,8 +320,6 @@ def normalize_url(s: str) -> str:
     return parse_url(s, attributes=('href',))['href']
 
 
-# FIXME constrain `attributes``
-# FIXME sync `attributes` with return record
 def parse_url(s: str, attributes: Iterable[str] = PARSE_ATTRIBUTES) -> ParseAttributes:
     """
     Returns a dictionary with the parsed components of the URL represented by *s*.
@@ -386,7 +384,6 @@ def parse_url(s: str, attributes: Iterable[str] = PARSE_ATTRIBUTES) -> ParseAttr
     return ret
 
 
-# FIXME constrain key of `**kwargs` by `URL_ATTRIBUTES`
 def replace_url(s: str, **kwargs: str) -> str:
     """
     Start with the URL represented by *s*, replace the attributes given in the *kwargs*
