@@ -52,10 +52,11 @@ API Documentation
 
 .. autoclass:: URL
 .. autoclass:: HostType()
+.. autoclass:: SchemeType()
 .. autofunction:: check_url
 .. autofunction:: join_url
 .. autofunction:: normalize_url
 .. autofunction:: parse_url
 .. autofunction:: replace_url
-.. autofunction:: idna
+.. autoclass:: idna
 
