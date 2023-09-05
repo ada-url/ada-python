@@ -31,6 +31,7 @@ UNSET_ATTRIBUTES = frozenset(('username', 'password', 'pathname'))
 
 _marker = object()
 
+
 class HostType(IntEnum):
     """
     Enum for URL host types:
