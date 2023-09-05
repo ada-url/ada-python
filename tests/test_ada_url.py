@@ -3,6 +3,7 @@ from unittest import TestCase
 
 from ada_url import (
     HostType,
+    SchemeType,
     URL,
     check_url,
     idna,
@@ -48,6 +49,22 @@ class ADAURLTests(TestCase):
                 urlobj = URL(url)
                 self.assertEqual(urlobj.host_type, int(expected))
                 self.assertEqual(urlobj.host_type, expected)
+
+    def test_class_scheme_type(self):
+        # host_type should return an IntEnum, which can be compared to a Python int
+        for url, expected in (
+            ('http://localhost', SchemeType.HTTP),
+            ('git://localhost', SchemeType.NOT_SPECIAL),
+            ('https://localhost', SchemeType.HTTPS),
+            ('ws://localhost', SchemeType.WS),
+            ('ftp://localhost', SchemeType.FTP),
+            ('wss://localhost', SchemeType.WSS),
+            ('file://localhost', SchemeType.FILE),
+        ):
+            with self.subTest(url=url):
+                urlobj = URL(url)
+                self.assertEqual(urlobj.scheme_type, int(expected))
+                self.assertEqual(urlobj.scheme_type, expected)
 
     def test_copy_vs_deepcopy(self):
         obj = URL('http://example.org:8080')
@@ -291,7 +308,8 @@ class ADAURLTests(TestCase):
             'search': '?q=1',
             'hash': '#frag',
             'origin': 'https://example.org:8080',
-            'host_type': 0,
+            'host_type': HostType(0),
+            'scheme_type': SchemeType(2),
         }
         self.assertEqual(actual, expected)
 

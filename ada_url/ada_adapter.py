@@ -15,7 +15,7 @@ URL_ATTRIBUTES = (
     'search',
     'hash',
 )
-PARSE_ATTRIBUTES = URL_ATTRIBUTES + ('origin', 'host_type')
+PARSE_ATTRIBUTES = URL_ATTRIBUTES + ('origin', 'host_type', 'scheme_type')
 
 # These are the attributes that have corresponding ada_get_* functions
 GET_ATTRIBUTES = frozenset(PARSE_ATTRIBUTES)
@@ -31,7 +31,6 @@ UNSET_ATTRIBUTES = frozenset(('username', 'password', 'pathname'))
 
 _marker = object()
 
-
 class HostType(IntEnum):
     """
     Enum for URL host types:
@@ -45,16 +44,41 @@ class HostType(IntEnum):
         >>> from ada_url import HostType
         >>> HostType.DEFAULT
         <HostType.DEFAULT: 0>
-        >>> HostType.IPV4
-        <HostType.IPV4: 1>
-        >>> HostType.IPV6
-        <HostType.IPV6: 2>
 
     """
 
     DEFAULT = 0
     IPV4 = 1
     IPV6 = 2
+
+
+class SchemeType(IntEnum):
+    """
+    Enum for URL scheme types:
+
+    * ``HTTP`` URLs like ``http://example.org`` are ``0``.
+    * ``NOT_SPECIAL`` URLs like ``git://example.og`` are ``1``.
+    * ``HTTPS`` URLs like ``https://example.org`` are ``2``.
+    * ``WS`` URLs like ``ws://example.org`` are ``3``.
+    * ``FTP`` URLs like ``ftp://example.org`` are ``4``.
+    * ``WSS`` URLs like ``wss://example.org`` are ``5``.
+    * ``FILE`` URLs like ``file://example`` are ``6``.
+
+    .. code-block:: python
+
+        >>> from ada_url import SchemeType
+        >>> SchemeType.HTTPS
+        <SchemeType.HTTPS: 2>
+
+    """
+
+    HTTP = 0
+    NOT_SPECIAL = 1
+    HTTPS = 2
+    WS = 3
+    FTP = 4
+    WSS = 5
+    FILE = 6
 
 
 class ParseAttributes(TypedDict, total=False):
@@ -70,6 +94,7 @@ class ParseAttributes(TypedDict, total=False):
     hash: str
     origin: str
     host_type: HostType
+    scheme_type: SchemeType
 
 
 def _get_obj(constructor, destructor, *args):
@@ -113,8 +138,10 @@ class URL:
     * ``search``
     * ``hash``
 
-    You can additionally read the ``origin`` and ``host_type`` attributes.
-    ``host_type`` is a :class:`HostType` enum.
+    You can additionally read these attributes:
+    * ``origin``, which will be a ``str``
+    * ``host_type``, which will be a :class:`HostType` enum
+    * ``scheme_type``, which will be a :class:`SchemeType` enum
 
     The class also exposes a static method that checks whether the input
     *url* (and optional *base*) can be parsed:
@@ -143,6 +170,7 @@ class URL:
     hash: str
     origin: Final[str]
     host_type: Final[HostType]
+    scheme_type: Final[SchemeType]
 
     def __init__(self, url: str, base: Optional[str] = None):
         url_bytes = url.encode('utf-8')
@@ -193,15 +221,18 @@ class URL:
     def __dir__(self) -> List[str]:
         return super().__dir__() + list(PARSE_ATTRIBUTES)
 
-    def __getattr__(self, attr: str) -> Union[str, HostType]:
+    def __getattr__(self, attr: str) -> Union[str, HostType, SchemeType]:
         if attr in GET_ATTRIBUTES:
-            get_func = getattr(lib, f'ada_get_{attr}')
+            real_attr = 'schema_type' if (attr == 'scheme_type') else attr
+            get_func = getattr(lib, f'ada_get_{real_attr}')
             data = get_func(self.urlobj)
             if attr == 'origin':
                 ret = _get_str(data)
                 lib.ada_free_owned_string(data)
             elif attr == 'host_type':
-                ret = data
+                ret = HostType(data)
+            elif attr == 'scheme_type':
+                ret = SchemeType(data)
             else:
                 ret = _get_str(data)
 
@@ -342,11 +373,13 @@ def parse_url(s: str, attributes: Iterable[str] = PARSE_ATTRIBUTES) -> ParseAttr
             'hash': '#frag'
             'origin': 'https://example.org:8080',
             'host_type': 0
+            'scheme_type': 2
         }
 
     The names of the dictionary keys correspond to the components of the "URL class"
     in the WHATWG URL spec.
     ``host_type`` is a :class:`HostType` enum.
+    ``scheme_type`` is a :class:`SchemeType` enum.
 
     Pass in a sequence of *attributes* to limit which keys are returned.
 
@@ -371,13 +404,16 @@ def parse_url(s: str, attributes: Iterable[str] = PARSE_ATTRIBUTES) -> ParseAttr
         raise ValueError('Invalid URL') from None
 
     for attr in attributes:
-        get_func = getattr(lib, f'ada_get_{attr}')
+        real_attr = 'schema_type' if (attr == 'scheme_type') else attr
+        get_func = getattr(lib, f'ada_get_{real_attr}')
         data = get_func(urlobj)
         if attr == 'origin':
             ret[attr] = _get_str(data)
             lib.ada_free_owned_string(data)
         elif attr == 'host_type':
             ret[attr] = HostType(data)
+        elif attr == 'scheme_type':
+            ret[attr] = SchemeType(data)
         else:
             ret[attr] = _get_str(data)
 
