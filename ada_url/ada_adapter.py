@@ -224,8 +224,7 @@ class URL:
 
     def __getattr__(self, attr: str) -> Union[str, HostType, SchemeType]:
         if attr in GET_ATTRIBUTES:
-            real_attr = 'schema_type' if (attr == 'scheme_type') else attr
-            get_func = getattr(lib, f'ada_get_{real_attr}')
+            get_func = getattr(lib, f'ada_get_{attr}')
             data = get_func(self.urlobj)
             if attr == 'origin':
                 ret = _get_str(data)
@@ -405,8 +404,7 @@ def parse_url(s: str, attributes: Iterable[str] = PARSE_ATTRIBUTES) -> ParseAttr
         raise ValueError('Invalid URL') from None
 
     for attr in attributes:
-        real_attr = 'schema_type' if (attr == 'scheme_type') else attr
-        get_func = getattr(lib, f'ada_get_{real_attr}')
+        get_func = getattr(lib, f'ada_get_{attr}')
         data = get_func(urlobj)
         if attr == 'origin':
             ret[attr] = _get_str(data)
