@@ -50,13 +50,13 @@ API Documentation
 
 .. automodule:: ada_url
 
-.. autoclass:: URL
+.. autoclass:: URL(url, base=None)
 .. autoclass:: HostType()
 .. autoclass:: SchemeType()
-.. autofunction:: check_url
-.. autofunction:: join_url
-.. autofunction:: normalize_url
-.. autofunction:: parse_url
-.. autofunction:: replace_url
+.. autofunction:: check_url(s)
+.. autofunction:: join_url(base_url, s)
+.. autofunction:: normalize_url(s)
+.. autofunction:: parse_url(s, [attributes])
+.. autofunction:: replace_url(s, **kwargs)
 .. autoclass:: idna
 

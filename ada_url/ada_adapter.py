@@ -55,7 +55,7 @@ class HostType(IntEnum):
 
 class SchemeType(IntEnum):
     """
-    Enum for URL scheme types:
+    Enum for `URL scheme types <https://url.spec.whatwg.org/#url-miscellaneous>`__.
 
     * ``HTTP`` URLs like ``http://example.org`` are ``0``.
     * ``NOT_SPECIAL`` URLs like ``git://example.og`` are ``1``.
