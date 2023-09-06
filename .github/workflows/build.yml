@@ -29,7 +29,12 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v3
-    - run: make requirements c_lib
+    - run: make requirements
+    - name: Set up QEMU  # Needed to build aarch64 wheels
+      if: runner.os == 'Linux'
+      uses: docker/setup-qemu-action@v2
+      with:
+        platforms: all
     - uses: pypa/cibuildwheel@v2.13.0
     - uses: actions/upload-artifact@v3
       with:
