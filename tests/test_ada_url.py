@@ -1,4 +1,6 @@
 from copy import copy, deepcopy
+from json import load
+from os.path import dirname, join
 from unittest import TestCase
 
 from ada_url import (
@@ -15,6 +17,8 @@ from ada_url import (
     replace_url,
 )
 from ada_url.ada_adapter import GET_ATTRIBUTES
+
+URL_TEST_DATA_PATH = join(dirname(__file__), 'files/urltestdata.json')
 
 
 class ADAURLTests(TestCase):
@@ -394,3 +398,21 @@ class ADAURLTests(TestCase):
             idna_to_ascii('meßagefactory.ca'.encode('utf-8')),
             b'xn--meagefactory-m9a.ca',
         )
+
+
+class ParseTests(TestCase):
+    def test_url_suite(self):
+        self.maxDiff = None
+        with open(URL_TEST_DATA_PATH, 'rt') as f:
+            test_data = load(f)
+
+        for i, item in enumerate(test_data, 1):
+            if isinstance(item, str):
+                continue
+
+            if item.get('failure', False):
+                continue
+
+            with self.subTest(i=i):
+                urlobj = URL(item['input'], base=item.get('base', None))
+                self.assertEqual(urlobj.href, item['href'])
