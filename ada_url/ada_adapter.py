@@ -174,14 +174,14 @@ class URL:
     scheme_type: Final[SchemeType]
 
     def __init__(self, url: str, base: Optional[str] = None):
-        url_bytes = url.encode('utf-8', 'replace')
+        url_bytes = url.encode('utf-8')
 
         if base is None:
             self.urlobj = _get_obj(
                 lib.ada_parse, lib.ada_free, url_bytes, len(url_bytes)
             )
         else:
-            base_bytes = base.encode('utf-8', 'replace')
+            base_bytes = base.encode('utf-8')
             self.urlobj = _get_obj(
                 lib.ada_parse_with_base,
                 lib.ada_free,
@@ -243,7 +243,7 @@ class URL:
     def __setattr__(self, attr: str, value: str) -> None:
         if attr in SET_ATTRIBUTES:
             try:
-                value_bytes = value.encode('utf-8', 'replace')
+                value_bytes = value.encode('utf-8')
             except Exception:
                 raise ValueError(f'Invalid value for {attr}') from None
 
@@ -265,7 +265,7 @@ class URL:
     @staticmethod
     def can_parse(url: str, base: Optional[str] = None) -> bool:
         try:
-            url_bytes = url.encode('utf-8', 'replace')
+            url_bytes = url.encode('utf-8')
         except Exception:
             return False
 
@@ -273,7 +273,7 @@ class URL:
             return lib.ada_can_parse(url_bytes, len(url_bytes))
 
         try:
-            base_bytes = base.encode('utf-8', 'replace')
+            base_bytes = base.encode('utf-8')
         except Exception:
             return False
 
@@ -296,7 +296,7 @@ def check_url(s: str) -> bool:
 
     """
     try:
-        s_bytes = s.encode('utf-8', 'replace')
+        s_bytes = s.encode('utf-8')
     except Exception:
         return False
 
@@ -318,8 +318,8 @@ def join_url(base_url: str, s: str) -> str:
 
     """
     try:
-        base_bytes = base_url.encode('utf-8', 'replace')
-        s_bytes = s.encode('utf-8', 'replace')
+        base_bytes = base_url.encode('utf-8')
+        s_bytes = s.encode('utf-8')
     except Exception:
         raise ValueError('Invalid URL') from None
 
@@ -394,7 +394,7 @@ def parse_url(s: str, attributes: Iterable[str] = PARSE_ATTRIBUTES) -> ParseAttr
 
     """
     try:
-        s_bytes = s.encode('utf-8', 'replace')
+        s_bytes = s.encode('utf-8')
     except Exception:
         raise ValueError('Invalid URL') from None
 
@@ -439,7 +439,7 @@ def replace_url(s: str, **kwargs: str) -> str:
     ``ValueError`` is raised if the input URL or one of the components is not valid.
     """
     try:
-        s_bytes = s.encode('utf-8', 'replace')
+        s_bytes = s.encode('utf-8')
     except Exception:
         raise ValueError('Invalid URL') from None
 
@@ -455,7 +455,7 @@ def replace_url(s: str, **kwargs: str) -> str:
             continue
 
         try:
-            value_bytes = value.encode('utf-8', 'replace')
+            value_bytes = value.encode('utf-8')
         except Exception:
             raise ValueError(f'Invalid value for {attr}') from None
 
@@ -508,7 +508,7 @@ class idna:
     @staticmethod
     def encode(s: Union[str, bytes]) -> str:
         if isinstance(s, str):
-            s = s.encode('utf-8', 'replace')
+            s = s.encode('utf-8')
 
         val = _get_obj(lib.ada_idna_to_ascii, lib.ada_free_owned_string, s, len(s))
         return ffi.string(val.data, val.length) if val.length else b''

@@ -402,17 +402,27 @@ class ADAURLTests(TestCase):
 
 class ParseTests(TestCase):
     def test_url_suite(self):
-        self.maxDiff = None
-        with open(URL_TEST_DATA_PATH, 'rt') as f:
+        with open(URL_TEST_DATA_PATH, 'rb') as f:
             test_data = load(f)
 
         for i, item in enumerate(test_data, 1):
+            # Skip the comments
             if isinstance(item, str):
                 continue
 
-            if item.get('failure', False):
+            # Skip tests that can't be represented properly with the json module
+            try:
+                (item.get('input') or '').encode('utf-8')
+                (item.get('base') or '').encode('utf-8')
+            except UnicodeEncodeError:
                 continue
 
             with self.subTest(i=i):
-                urlobj = URL(item['input'], base=item.get('base', None))
-                self.assertEqual(urlobj.href, item['href'])
+                s = item['input']
+                base = item.get('base', None)
+                if item.get('failure', False):
+                    with self.assertRaises(ValueError):
+                        URL(s, base=base)
+                else:
+                    urlobj = URL(s, base=base)
+                    self.assertEqual(urlobj.href, item['href'])
