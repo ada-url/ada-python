@@ -243,7 +243,7 @@ class URL:
     def __setattr__(self, attr: str, value: str) -> None:
         if attr in SET_ATTRIBUTES:
             try:
-                value_bytes = value.encode()
+                value_bytes = value.encode('utf-8')
             except Exception:
                 raise ValueError(f'Invalid value for {attr}') from None
 
@@ -455,7 +455,7 @@ def replace_url(s: str, **kwargs: str) -> str:
             continue
 
         try:
-            value_bytes = value.encode()
+            value_bytes = value.encode('utf-8')
         except Exception:
             raise ValueError(f'Invalid value for {attr}') from None
 
