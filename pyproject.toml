@@ -25,11 +25,12 @@ build = [
     "pp38-*",
     "pp39-*",
 ]
-before-all = "make c_lib"
 
 [tool.cibuildwheel.linux]
 archs = ["x86_64", "aarch64"]
+before-all = "make c_lib"
 
 [tool.cibuildwheel.macos]
 archs = ["x86_64", "universal2", "arm64"]
 environment = { MACOSX_DEPLOYMENT_TARGET="10.15" }
+before-build = "make clean && make c_lib"

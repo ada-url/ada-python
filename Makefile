@@ -34,7 +34,7 @@ clean:
 
 .PHONY: c_lib
 c_lib:
-	$(CXX) -c "ada_url/ada.cpp" -fPIC -std="c++17" -O2 -o "ada_url/ada.o"
+	$(CXX) -c "ada_url/ada.cpp" -fPIC -std="c++17" -O2 -o "ada_url/ada.o" $(ARCHFLAGS)
 
 .PHONY: package
 package: c_lib
