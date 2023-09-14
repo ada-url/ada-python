@@ -140,6 +140,7 @@ class URL:
     * ``hash``
 
     You can additionally read these attributes:
+
     * ``origin``, which will be a ``str``
     * ``host_type``, which will be a :class:`HostType` enum
     * ``scheme_type``, which will be a :class:`SchemeType` enum
