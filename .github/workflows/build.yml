@@ -35,7 +35,7 @@ jobs:
       uses: docker/setup-qemu-action@v2
       with:
         platforms: all
-    - uses: pypa/cibuildwheel@v2.13.0
+    - uses: pypa/cibuildwheel@v2.16.2
     - uses: actions/upload-artifact@v3
       with:
         path: wheelhouse/*.whl
