@@ -1,5 +1,5 @@
 from enum import IntEnum
-from typing import Final, Iterable, Iterator, List, Optional, TypedDict, Union
+from typing import Final, Iterable, Iterator, List, Optional, Tuple, TypedDict, Union
 
 from ada_url._ada_wrapper import ffi, lib
 
@@ -379,7 +379,7 @@ class URLSearchParams:
         item = lib.ada_search_params_get(self.paramsobj, key_bytes, len(key_bytes))
         return _get_str(item)
 
-    def get_all(self, key: str) -> list[str]:
+    def get_all(self, key: str) -> List[str]:
         key_bytes = key.encode('utf-8')
         items = lib.ada_search_params_get_all(self.paramsobj, key_bytes, len(key_bytes))
         count = lib.ada_strings_size(items)
@@ -439,7 +439,7 @@ class URLSearchParams:
             item = lib.ada_search_params_values_iter_next(iterator)
             yield _get_str(item)
 
-    def items(self) -> Iterator[tuple[str, str]]:
+    def items(self) -> Iterator[Tuple[str, str]]:
         iterator = _get_obj(
             lib.ada_search_params_get_entries,
             lib.ada_free_search_params_entries_iter,
@@ -670,7 +670,7 @@ def parse_search_params(s: str) -> dict:
     return ret
 
 
-def replace_search_params(s: str, *args: tuple[str, str]) -> str:
+def replace_search_params(s: str, *args: Tuple[str, str]) -> str:
     """
     Returns a string representing the URL parameters specified by *s*, modified by the
     ``(key, value)`` pairs passed in as *args*.
