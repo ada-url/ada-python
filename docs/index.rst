@@ -58,5 +58,8 @@ API Documentation
 .. autofunction:: normalize_url(s)
 .. autofunction:: parse_url(s, [attributes])
 .. autofunction:: replace_url(s, **kwargs)
+.. autoclass:: URLSearchParams(params)
+.. autoclass:: parse_search_params(s)
+.. autoclass:: replace_search_params(s)
 .. autoclass:: idna
 
