@@ -6,6 +6,7 @@ from unittest import TestCase
 from ada_url import (
     HostType,
     SchemeType,
+    URLSearchParams as SearchParams,
     URL,
     check_url,
     idna,
@@ -13,6 +14,8 @@ from ada_url import (
     idna_to_unicode,
     join_url,
     normalize_url,
+    replace_search_params,
+    parse_search_params,
     parse_url,
     replace_url,
 )
@@ -398,6 +401,125 @@ class ADAURLTests(TestCase):
             idna_to_ascii('meßagefactory.ca'.encode('utf-8')),
             b'xn--meagefactory-m9a.ca',
         )
+
+
+class SearchParamsTests(TestCase):
+    def test_append(self):
+        search_params = SearchParams('key1=value1&key1=value2&key2=value3')
+        search_params.append('key2', 'value4')
+        search_params.append('key3', 'value5')
+        actual = list(search_params.items())
+        expected = [
+            ('key1', 'value1'),
+            ('key1', 'value2'),
+            ('key2', 'value3'),
+            ('key2', 'value4'),
+            ('key3', 'value5'),
+        ]
+        self.assertEqual(actual, expected)
+
+    def test_delete_key(self):
+        search_params = SearchParams('key1=value1&key1=value2&key2=value3')
+        search_params.delete('key1')
+        search_params.delete('key3')
+        actual = list(search_params.items())
+        expected = [('key2', 'value3')]
+        self.assertEqual(actual, expected)
+
+    def test_delete_value(self):
+        search_params = SearchParams('key1=value1&key1=value2&key2=value3')
+        search_params.delete('key1', 'value1')
+        search_params.delete('key1', 'value4')
+        search_params.delete('key3', 'value5')
+        actual = list(search_params.items())
+        expected = [('key1', 'value2'), ('key2', 'value3')]
+        self.assertEqual(actual, expected)
+
+    def test_get(self):
+        search_params = SearchParams('key1=value1&key1=value2&key2=value3')
+        self.assertEqual(search_params.get('key1'), 'value1')
+        self.assertEqual(search_params.get('key2'), 'value3')
+        self.assertEqual(search_params.get('key3'), '')
+
+    def test_get_all(self):
+        search_params = SearchParams('key1=value1&key1=value2&key2=value3')
+        self.assertEqual(search_params.get_all('key1'), ['value1', 'value2'])
+        self.assertEqual(search_params.get_all('key2'), ['value3'])
+
+    def test_has_key(self):
+        search_params = SearchParams('key1=value1&key1=value2&key2=value3')
+        self.assertTrue(search_params.has('key1'))
+        self.assertTrue(search_params.has('key2'))
+        self.assertFalse(search_params.has('key3'))
+
+    def test_has_value(self):
+        search_params = SearchParams('key1=value1&key1=value2&key2=value3')
+        self.assertTrue(search_params.has('key1', 'value1'))
+        self.assertTrue(search_params.has('key1', 'value2'))
+        self.assertTrue(search_params.has('key2', 'value3'))
+        self.assertFalse(search_params.has('key1', 'value4'))
+        self.assertFalse(search_params.has('key2', 'value5'))
+        self.assertFalse(search_params.has('key3', 'value6'))
+
+    def test_items(self):
+        search_params = SearchParams('key1=value1&key1=value2&key2=value3')
+        actual = list(search_params.items())
+        expected = [('key1', 'value1'), ('key1', 'value2'), ('key2', 'value3')]
+        self.assertEqual(actual, expected)
+
+    def test_size(self):
+        search_params = SearchParams('key1=value1&key1=value2&key2=value3')
+        self.assertEqual(search_params.size, 3)
+
+    def test_keys(self):
+        search_params = SearchParams('key1=value1&key1=value2&key2=value3')
+        actual = list(search_params.keys())
+        expected = ['key1', 'key1', 'key2']
+        self.assertEqual(actual, expected)
+
+    def test_repr(self):
+        search_params = SearchParams('key1=value1')
+        actual = repr(search_params)
+        expected = '<SearchParams "key1=value1">'
+        self.assertEqual(actual, expected)
+
+    def test_set(self):
+        search_params = SearchParams('key1=value1&key1=value2&key2=value3')
+        search_params.set('key1', 'value4')
+        search_params.set('key3', 'value5')
+        actual = list(search_params.items())
+        expected = [('key1', 'value4'), ('key2', 'value3'), ('key3', 'value5')]
+        self.assertEqual(actual, expected)
+
+    def test_sort(self):
+        search_params = SearchParams('key2=value2&key1=value1&key3=value3')
+        search_params.sort()
+        actual = list(search_params.items())
+        expected = [('key1', 'value1'), ('key2', 'value2'), ('key3', 'value3')]
+        self.assertEqual(actual, expected)
+
+    def test_str(self):
+        params = 'key2=value2&key1=value1&key3=value3'
+        search_params = SearchParams(params)
+        self.assertEqual(str(search_params), params)
+
+    def test_values(self):
+        search_params = SearchParams('key1=value1&key1=value2&key2=value3')
+        actual = list(search_params.values())
+        expected = ['value1', 'value2', 'value3']
+        self.assertEqual(actual, expected)
+
+    def test_parse_search_params(self):
+        s = 'key1=value1&key1=value2&key2=value3'
+        actual = parse_search_params(s)
+        expected = {'key1': ['value1', 'value2'], 'key2': ['value3']}
+        self.assertEqual(actual, expected)
+
+    def test_replace_search_params(self):
+        s = 'key1=value1&key1=value2&key2=value3'
+        actual = replace_search_params(s, ('key1', 'value4'), ('key1', 'value5'))
+        expected = 'key2=value3&key1=value4&key1=value5'
+        self.assertEqual(actual, expected)
 
 
 class ParseTests(TestCase):

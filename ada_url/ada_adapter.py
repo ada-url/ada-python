@@ -1,5 +1,5 @@
 from enum import IntEnum
-from typing import Final, Iterable, List, Optional, TypedDict, Union
+from typing import Final, Iterable, Iterator, List, Optional, Tuple, TypedDict, Union
 
 from ada_url._ada_wrapper import ffi, lib
 
@@ -283,6 +283,182 @@ class URL:
         )
 
 
+class URLSearchParams:
+    """
+    Parses the given *params* string according to the WHATWG URL parsing standard.
+
+    The attribute and methods from the standard are implemented:
+
+    .. code-block:: python
+
+        >>> from ada_url import URLSearchParams
+        >>> obj = URLSearchParams('key1=value1&key2=value2&key2=value3')
+        >>> obj.size
+        3
+        >>> obj.append('key2', 'value4')
+        >>> str(obj)
+        'key1=value1&key2=value2&key2=value3&key2=value4'
+        >>> obj.delete('key1')
+        >>> str(obj)
+        'key2=value2&key2=value3&key2=value4'
+        >>> obj.delete('key2', 'value2')
+        >>> str(obj)
+        'key2=value3&key2=value4'
+        >>> obj.get('key2')
+        'value3'
+        >>> obj.get_all('key2')
+        ['value3', 'value4']
+        >>> obj.has('key2')
+        True
+        >>> obj.has('key2', 'value5')
+        False
+        >>> obj.set('key1', 'value6')
+        >>> str(obj)
+        'key2=value3&key2=value4&key1=value6'
+        >>> obj.sort()
+        >>> str(obj)
+        'key1=value6&key2=value3&key2=value4'
+
+    Iterators for the ``keys``, ``values``, and ``items`` are also implemented:
+
+    .. code-block:: python
+
+        >>> obj = URLSearchParams('key1=value1&key2=value2&key2=value3')
+        >>> list(obj.keys())
+        ['key1', 'key2', 'key2']
+        >>> list(obj.values())
+        ['value1', 'value2', 'value3']
+        >>> list(obj.items())
+        [('key1', 'value1'), ('key2', 'value2'), ('key2', 'value3')]
+
+    See the `WHATWG docs <https://url.spec.whatwg.org/#interface-urlsearchparams>`__ for
+    more details on the URLSearchParams class.
+
+    """
+
+    def __init__(self, params: str):
+        params_bytes = params.encode('utf-8')
+        self.paramsobj = _get_obj(
+            lib.ada_parse_search_params,
+            lib.ada_free_search_params,
+            params_bytes,
+            len(params_bytes),
+        )
+
+    @property
+    def size(self) -> int:
+        return lib.ada_search_params_size(self.paramsobj)
+
+    def append(self, key: str, value: str):
+        key_bytes = key.encode('utf-8')
+        value_bytes = value.encode('utf-8')
+        lib.ada_search_params_append(
+            self.paramsobj,
+            key_bytes,
+            len(key_bytes),
+            value_bytes,
+            len(value_bytes),
+        )
+
+    def delete(self, key: str, value: Optional[str] = None):
+        key_bytes = key.encode('utf-8')
+        if value is None:
+            lib.ada_search_params_remove(self.paramsobj, key_bytes, len(key_bytes))
+        else:
+            value_bytes = value.encode('utf-8')
+            lib.ada_search_params_remove_value(
+                self.paramsobj,
+                key_bytes,
+                len(key_bytes),
+                value_bytes,
+                len(value_bytes),
+            )
+
+    def get(self, key: str) -> str:
+        key_bytes = key.encode('utf-8')
+        item = lib.ada_search_params_get(self.paramsobj, key_bytes, len(key_bytes))
+        return _get_str(item)
+
+    def get_all(self, key: str) -> List[str]:
+        key_bytes = key.encode('utf-8')
+        items = lib.ada_search_params_get_all(self.paramsobj, key_bytes, len(key_bytes))
+        count = lib.ada_strings_size(items)
+
+        ret = []
+        for i in range(count):
+            value = _get_str(lib.ada_strings_get(items, i))
+            ret.append(value)
+
+        return ret
+
+    def has(self, key: str, value: Optional[str] = None) -> bool:
+        key_bytes = key.encode('utf-8')
+        if value is None:
+            return lib.ada_search_params_has(self.paramsobj, key_bytes, len(key_bytes))
+        else:
+            value_bytes = value.encode('utf-8')
+            return lib.ada_search_params_has_value(
+                self.paramsobj,
+                key_bytes,
+                len(key_bytes),
+                value_bytes,
+                len(value_bytes),
+            )
+
+    def set(self, key: str, value: str):
+        key_bytes = key.encode('utf-8')
+        value_bytes = value.encode('utf-8')
+        lib.ada_search_params_set(
+            self.paramsobj,
+            key_bytes,
+            len(key_bytes),
+            value_bytes,
+            len(value_bytes),
+        )
+
+    def sort(self):
+        lib.ada_search_params_sort(self.paramsobj)
+
+    def keys(self) -> Iterator[str]:
+        iterator = _get_obj(
+            lib.ada_search_params_get_keys,
+            lib.ada_free_search_params_keys_iter,
+            self.paramsobj,
+        )
+        while lib.ada_search_params_keys_iter_has_next(iterator):
+            item = lib.ada_search_params_keys_iter_next(iterator)
+            yield _get_str(item)
+
+    def values(self) -> Iterator[str]:
+        iterator = _get_obj(
+            lib.ada_search_params_get_values,
+            lib.ada_free_search_params_values_iter,
+            self.paramsobj,
+        )
+        while lib.ada_search_params_values_iter_has_next(iterator):
+            item = lib.ada_search_params_values_iter_next(iterator)
+            yield _get_str(item)
+
+    def items(self) -> Iterator[Tuple[str, str]]:
+        iterator = _get_obj(
+            lib.ada_search_params_get_entries,
+            lib.ada_free_search_params_entries_iter,
+            self.paramsobj,
+        )
+        while lib.ada_search_params_entries_iter_has_next(iterator):
+            item = lib.ada_search_params_entries_iter_next(iterator)
+            yield _get_str(item.key), _get_str(item.value)
+
+    def __repr__(self):
+        return f'<SearchParams "{self}">'
+
+    def __str__(self) -> str:
+        result = _get_obj(
+            lib.ada_search_params_to_string, lib.ada_free_owned_string, self.paramsobj
+        )
+        return _get_str(result)
+
+
 def check_url(s: str) -> bool:
     """
     Returns ``True`` if *s* represents a valid URL, and ``False`` otherwise.
@@ -470,6 +646,53 @@ def replace_url(s: str, **kwargs: str) -> str:
                 raise ValueError(f'Invalid value for {attr}') from None
 
     return _get_str(lib.ada_get_href(urlobj))
+
+
+def parse_search_params(s: str) -> dict:
+    """
+    Returns a dictionary representing the parsed URL Parameters specified by *s*.
+    The returned dictionary maps each key to a list of values associated with it.
+
+    .. code-block:: python
+
+        >>> from ada_url import parse_search_params
+        >>> parse_search_params('key1=value1&key1=value2&key2=value3')
+        {'key1': ['value1', 'value2'], 'key2': ['value3']}
+
+    """
+    ret = {}
+    for key, value in URLSearchParams(s).items():
+        if key not in ret:
+            ret[key] = [value]
+        else:
+            ret[key].append(value)
+
+    return ret
+
+
+def replace_search_params(s: str, *args: Tuple[str, str]) -> str:
+    """
+    Returns a string representing the URL parameters specified by *s*, modified by the
+    ``(key, value)`` pairs passed in as *args*.
+
+    .. code-block:: python
+
+        >>> from ada_url import replace_search_params
+        >>> replace_search_params(
+        ...     'key1=value1&key1=value2',
+        ...     ('key1', 'value3'),
+        ...     ('key2', 'value4')
+        ... )
+        'key1=value3&key2=value4'
+    """
+    search_params = URLSearchParams(s)
+    for key, value in args:
+        search_params.delete(key)
+
+    for key, value in args:
+        search_params.append(key, value)
+
+    return str(search_params)
 
 
 class idna:
