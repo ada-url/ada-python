@@ -11,7 +11,7 @@ Install from `PyPI <https://pypi.org/project/ada-url/>`__:
 
 .. code-block:: sh
 
-    pip install boto3-helpers
+    pip install ada_url
 
 Usage examples
 --------------
