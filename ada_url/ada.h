@@ -1,4 +1,4 @@
-/* auto-generated on 2023-10-18 21:05:28 -0400. Do not edit! */
+/* auto-generated on 2023-10-22 19:50:50 -0400. Do not edit! */
 /* begin file include/ada.h */
 /**
  * @file ada.h
@@ -1505,8 +1505,8 @@ struct url_base {
    * @return On failure, it returns zero.
    * @see https://url.spec.whatwg.org/#host-parsing
    */
-  virtual ada_really_inline size_t
-  parse_port(std::string_view view, bool check_trailing_content) noexcept = 0;
+  virtual size_t parse_port(std::string_view view,
+                            bool check_trailing_content) noexcept = 0;
 
   virtual ada_really_inline size_t parse_port(std::string_view view) noexcept {
     return this->parse_port(view, false);
@@ -7088,14 +7088,14 @@ url_search_params_entries_iter::next() {
 #ifndef ADA_ADA_VERSION_H
 #define ADA_ADA_VERSION_H
 
-#define ADA_VERSION "2.7.1"
+#define ADA_VERSION "2.7.2"
 
 namespace ada {
 
 enum {
   ADA_VERSION_MAJOR = 2,
   ADA_VERSION_MINOR = 7,
-  ADA_VERSION_REVISION = 1,
+  ADA_VERSION_REVISION = 2,
 };
 
 }  // namespace ada
