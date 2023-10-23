@@ -1,4 +1,4 @@
-/* auto-generated on 2023-10-10 12:43:54 -0400. Do not edit! */
+/* auto-generated on 2023-10-22 19:50:50 -0400. Do not edit! */
 /* begin file include/ada.h */
 /**
  * @file ada.h
@@ -1505,8 +1505,8 @@ struct url_base {
    * @return On failure, it returns zero.
    * @see https://url.spec.whatwg.org/#host-parsing
    */
-  virtual ada_really_inline size_t
-  parse_port(std::string_view view, bool check_trailing_content) noexcept = 0;
+  virtual size_t parse_port(std::string_view view,
+                            bool check_trailing_content) noexcept = 0;
 
   virtual ada_really_inline size_t parse_port(std::string_view view) noexcept {
     return this->parse_port(view, false);
@@ -6577,20 +6577,31 @@ inline bool url_aggregator::has_port() const noexcept {
   // is greater than 1, and url's path[0] is the empty string, then append
   // U+002F (/) followed by U+002E (.) to output.
   ada_log("url_aggregator::has_dash_dot");
-  // Performance: instead of doing this potentially expensive check, we could
-  // just have a boolean value in the structure.
 #if ADA_DEVELOPMENT_CHECKS
-  if (components.pathname_start + 1 < buffer.size() &&
-      components.pathname_start == components.host_end + 2) {
-    ADA_ASSERT_TRUE(buffer[components.host_end] == '/');
-    ADA_ASSERT_TRUE(buffer[components.host_end + 1] == '.');
+  // If pathname_start and host_end are exactly two characters apart, then we
+  // either have a one-digit port such as http://test.com:5?param=1 or else we
+  // have a /.: sequence such as "non-spec:/.//". We test that this is the case.
+  if (components.pathname_start == components.host_end + 2) {
+    ADA_ASSERT_TRUE((buffer[components.host_end] == '/' &&
+                     buffer[components.host_end + 1] == '.') ||
+                    (buffer[components.host_end] == ':' &&
+                     checkers::is_digit(buffer[components.host_end + 1])));
+  }
+  if (components.pathname_start == components.host_end + 2 &&
+      buffer[components.host_end] == '/' &&
+      buffer[components.host_end + 1] == '.') {
+    ADA_ASSERT_TRUE(components.pathname_start + 1 < buffer.size());
     ADA_ASSERT_TRUE(buffer[components.pathname_start] == '/');
     ADA_ASSERT_TRUE(buffer[components.pathname_start + 1] == '/');
   }
 #endif
-  return !has_opaque_path &&
-         components.pathname_start == components.host_end + 2 &&
-         components.pathname_start + 1 < buffer.size();
+  // Performance: it should be uncommon for components.pathname_start ==
+  // components.host_end + 2 to be true. So we put this check first in the
+  // sequence. Most times, we do not have an opaque path. Checking for '/.' is
+  // more expensive, but should be uncommon.
+  return components.pathname_start == components.host_end + 2 &&
+         !has_opaque_path && buffer[components.host_end] == '/' &&
+         buffer[components.host_end + 1] == '.';
 }
 
 [[nodiscard]] inline std::string_view url_aggregator::get_href()
@@ -6798,11 +6809,11 @@ struct url_search_params {
    * C++ style conventional iterator support. const only because we
    * do not really want the params to be modified via the iterator.
    */
-  inline const auto begin() const { return params.begin(); }
-  inline const auto end() const { return params.end(); }
-  inline const auto front() const { return params.front(); }
-  inline const auto back() const { return params.back(); }
-  inline const auto operator[](size_t index) const { return params[index]; }
+  inline auto begin() const { return params.begin(); }
+  inline auto end() const { return params.end(); }
+  inline auto front() const { return params.front(); }
+  inline auto back() const { return params.back(); }
+  inline auto operator[](size_t index) const { return params[index]; }
 
  private:
   typedef std::pair<std::string, std::string> key_value_pair;
@@ -7077,14 +7088,14 @@ url_search_params_entries_iter::next() {
 #ifndef ADA_ADA_VERSION_H
 #define ADA_ADA_VERSION_H
 
-#define ADA_VERSION "2.7.0"
+#define ADA_VERSION "2.7.2"
 
 namespace ada {
 
 enum {
   ADA_VERSION_MAJOR = 2,
   ADA_VERSION_MINOR = 7,
-  ADA_VERSION_REVISION = 0,
+  ADA_VERSION_REVISION = 2,
 };
 
 }  // namespace ada
