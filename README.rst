@@ -129,7 +129,7 @@ Contrast that with the Python standard library's ``urlib.parse`` module:
 .. code-block:: python
 
     >>> from urllib.parse import urlparse
-    >>> parsed_url = urlparse()
+    >>> parsed_url = urlparse('https://www.GOoglé.com/./path/../path2/')
     >>> parsed_url.hostname
     'www.googlé.com'
     >>> parsed_url.path
