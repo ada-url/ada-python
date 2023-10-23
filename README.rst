@@ -66,7 +66,7 @@ Replacing URL components with the ``URL`` class:
     >>> urlobj = URL('https://example.org/path/../file.txt')
     >>> urlobj.host = 'example.com'
     >>> urlobj.href
-    'https://example.com/path/file.txt'
+    'https://example.com/file.txt'
 
 Replacing URL components with the ``replace_url`` function:
 
