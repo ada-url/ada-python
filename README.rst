@@ -66,7 +66,7 @@ Replacing URL components with the ``URL`` class:
     >>> urlobj = URL('https://example.org/path/../file.txt')
     >>> urlobj.host = 'example.com'
     >>> urlobj.href
-    'https://example.com/path/file.txt'
+    'https://example.com/file.txt'
 
 Replacing URL components with the ``replace_url`` function:
 
@@ -129,7 +129,7 @@ Contrast that with the Python standard library's ``urlib.parse`` module:
 .. code-block:: python
 
     >>> from urllib.parse import urlparse
-    >>> parsed_url = urlparse()
+    >>> parsed_url = urlparse('https://www.GOoglé.com/./path/../path2/')
     >>> parsed_url.hostname
     'www.googlé.com'
     >>> parsed_url.path
