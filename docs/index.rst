@@ -53,13 +53,22 @@ API Documentation
 .. autoclass:: URL(url, base=None)
 .. autoclass:: HostType()
 .. autoclass:: SchemeType()
+
+----
+
 .. autofunction:: check_url(s)
 .. autofunction:: join_url(base_url, s)
 .. autofunction:: normalize_url(s)
 .. autofunction:: parse_url(s, [attributes])
 .. autofunction:: replace_url(s, **kwargs)
+
+----
+
 .. autoclass:: URLSearchParams(params)
 .. autoclass:: parse_search_params(s)
-.. autoclass:: replace_search_params(s)
+.. autoclass:: replace_search_params(s, *args)
+
+----
+
 .. autoclass:: idna
 

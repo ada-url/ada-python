@@ -1,8 +1,12 @@
 ada-url
 ========
 
+This is ``ada_url``, a Python library for working with URLs based on the ``Ada`` URL
+parser.
 
-This is ``ada_url``, a Python library for parsing and joining URLs.
+* `Documentation <https://ada-url.readthedocs.io>`__
+* `Development <https://github.com/ada-url/ada-python/>`__
+* `Ada <https://www.ada-url.com/>`__ 
 
 Installation
 ------------
@@ -16,30 +20,20 @@ Install from `PyPI <https://pypi.org/project/ada-url/>`__:
 Usage examples
 --------------
 
-This package exposes a ``URL`` class that is intended to match the one described in the
-`WHATWG URL spec <https://url.spec.whatwg.org/#url-class>`__.
+Parsing URLs
+^^^^^^^^^^^^
+
+The ``URL`` class is intended to match the one described in the
+`WHATWG URL spec <https://url.spec.whatwg.org/#url-class>`_:.
 
 .. code-block:: python
 
     >>> from ada_url import URL
-    >>> URL('https://example.org/path/../file.txt') as urlobj:
-    >>> urlobj.host = 'example.com'
-    >>> new_url = urlobj.href
-    >>> new_url
-    'https://example.com/file.txt'
+    >>> urlobj = URL('https://example.org/path/../file.txt')
+    >>> urlobj.href
+    'https://example.org/path/file.txt'
 
-It also provides high level functions for parsing and manipulating URLs. Validating
-a URL:
-
-.. code-block:: python
-
-    >>> from ada_url import check_url
-    >>> check_url('https://example.org')
-    True
-    >>> check_url('http://example:bougus')
-    False
-
-Parsing a URL:
+The ``parse_url`` function returns a dictionary of all URL elements:
 
 .. code-block:: python
 
@@ -61,19 +55,59 @@ Parsing a URL:
         'scheme_type': <SchemeType.HTTPS: 2>
     }
 
-Replacing URL components:
+Altering URLs
+^^^^^^^^^^^^^
+
+Replacing URL components with the ``URL`` class:
 
 .. code-block:: python
 
+    >>> from ada_url import URL
+    >>> urlobj = URL('https://example.org/path/../file.txt')
+    >>> urlobj.host = 'example.com'
+    >>> urlobj.href
+    'https://example.com/path/file.txt'
+
+Replacing URL components with the ``replace_url`` function:
+
     >>> from ada_url import replace_url
-    >>> ada_url.replace_url('http://example.org:80', protocol='https:')
-    'https://example.org/'
+    >>> replace_url('https://example.org/path/../file.txt', host='example.com')
+    'https://example.com/file.txt'
 
-Joining a URL with a relative fragment:
+Search parameters
+^^^^^^^^^^^^^^^^^
 
-    >>> from ada_url import join_url
-    >>> join_url('https://example.org/dir/child.txt', '../parent.txt')
-    'https://example.org/parent.txt'
+The ``URLSearchParams`` class is intended to match the one described in the
+`WHATWG URL spec <https://url.spec.whatwg.org/#interface-urlsearchparams>`__.
+
+.. code-block:: python
+
+    >>> from ada_url import URLSearchParams
+    >>> obj = URLSearchParams('key1=value1&key2=value2')
+    >>> list(obj.items())
+    [('key1', 'value1'), ('key2', 'value2')]
+
+The ``parse_search_params`` function returns a dictionary of search keys mapped to
+value lists:
+
+.. code-block:: python
+
+    >>> from ada_url import parse_search_params
+    >>> parse_search_params('key1=value1&key2=value2')
+    {'key1': ['value1'], 'key2': ['value3']}
+
+Internationalized domain names
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The ``idna`` class can encode and decode IDNs:
+
+.. code-block:: python
+
+    >>> from ada_url import idna
+    >>> idna.encode('Bücher.example')
+    b'xn--bcher-kva.example'
+    >>> idna.decode(b'xn--bcher-kva.example')
+    'bücher.example'
 
 WHATWG URL compliance
 ---------------------
@@ -100,10 +134,3 @@ Contrast that with the Python standard library's ``urlib.parse`` module:
     'www.googlé.com'
     >>> parsed_url.path
     '/./path/../path2/'
-
-More information
-----------------
-
-* ``ada-url`` is based on the `Ada <https://www.ada-url.com/>`__ project.
-* A full API reference is available at `Read the Docs <https://ada-url.readthedocs.io>`__.
-* Source code is available at `GitHub <https://github.com/ada-url/ada-python>`__.
