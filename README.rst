@@ -94,7 +94,7 @@ value lists:
 
     >>> from ada_url import parse_search_params
     >>> parse_search_params('key1=value1&key2=value2')
-    {'key1': ['value1'], 'key2': ['value3']}
+    {'key1': ['value1'], 'key2': ['value2']}
 
 Internationalized domain names
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
