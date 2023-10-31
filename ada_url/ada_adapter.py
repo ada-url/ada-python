@@ -1,5 +1,15 @@
 from enum import IntEnum
-from typing import Final, Iterable, Iterator, List, Optional, Tuple, TypedDict, Union
+from typing import (
+    Dict,
+    Final,
+    Iterable,
+    Iterator,
+    List,
+    Optional,
+    Tuple,
+    TypedDict,
+    Union,
+)
 
 from ada_url._ada_wrapper import ffi, lib
 
@@ -648,7 +658,7 @@ def replace_url(s: str, **kwargs: str) -> str:
     return _get_str(lib.ada_get_href(urlobj))
 
 
-def parse_search_params(s: str) -> dict:
+def parse_search_params(s: str) -> Dict[str, List[str]]:
     """
     Returns a dictionary representing the parsed URL Parameters specified by *s*.
     The returned dictionary maps each key to a list of values associated with it.
@@ -660,7 +670,7 @@ def parse_search_params(s: str) -> dict:
         {'key1': ['value1', 'value2'], 'key2': ['value3']}
 
     """
-    ret = {}
+    ret: Dict[str, List[str]] = {}
     for key, value in URLSearchParams(s).items():
         if key not in ret:
             ret[key] = [value]

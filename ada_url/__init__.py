@@ -1,7 +1,7 @@
 from ada_url.ada_adapter import (
+    URL,
     HostType,
     SchemeType,
-    URL,
     URLSearchParams,
     check_url,
     idna,
