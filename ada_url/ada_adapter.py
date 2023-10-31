@@ -670,7 +670,7 @@ def parse_search_params(s: str) -> Dict[str, List[str]]:
         {'key1': ['value1', 'value2'], 'key2': ['value3']}
 
     """
-    ret: Dict[str, List[str]] = {}
+    ret = {}
     for key, value in URLSearchParams(s).items():
         if key not in ret:
             ret[key] = [value]
