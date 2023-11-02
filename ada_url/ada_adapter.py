@@ -359,6 +359,9 @@ class URLSearchParams:
     def size(self) -> int:
         return lib.ada_search_params_size(self.paramsobj)
 
+    def __len__(self) -> int:
+        return self.size
+
     def append(self, key: str, value: str):
         key_bytes = key.encode('utf-8')
         value_bytes = value.encode('utf-8')
