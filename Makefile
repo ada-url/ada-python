@@ -4,12 +4,11 @@ requirements:
 
 .PHONY: check
 check:
-	black --check .
-	ruff .
+	ruff check .
 
 .PHONY: format
 format:
-	black .
+	ruff format .
 
 .PHONY: coverage
 coverage:
