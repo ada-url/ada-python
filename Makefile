@@ -1,4 +1,4 @@
-.PHONY: requirements
+.PHONY: ci_requirements
 ci_requirements:
 	python3 -m pip install uv
 	python3 -m uv pip install --system -r requirements/development.txt
