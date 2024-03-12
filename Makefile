@@ -1,7 +1,12 @@
 .PHONY: requirements
+ci_requirements:
+	python3 -m pip install uv
+	python3 -m uv pip install --system -r requirements/development.txt
+
+.PHONY: requirements
 requirements:
 	python3 -m pip install uv
-	uv pip install -r requirements/development.txt
+	python3 -m pip install -r requirements/development.txt
 
 .PHONY: check
 check:
