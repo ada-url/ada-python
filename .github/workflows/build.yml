@@ -45,7 +45,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - run: |
-        make requirements
+        make ci_requirements
         python -m build --no-isolation --sdist
     - uses: actions/upload-artifact@v3
       with:
