@@ -8,7 +8,7 @@ twine==5.0.0
 wheel==0.43.0
 
 # What we need
-alabaster==0.7.16
+alabaster==0.7.13
 Babel==2.14.0
 certifi==2024.2.2
 cffi==1.16.0
