@@ -1,7 +1,7 @@
 ada-url
 ========
 
-The `urlib.parse`` module in Python does not follow the legacy RFC 3978 standard nor
+The `urlib.parse` module in Python does not follow the legacy RFC 3978 standard nor
 does it follow the newer WHATWG URL specification. It is also relatively slow.
 
 This is ``ada_url``, a fast standard-compliant Python library for working with URLs based on the ``Ada`` URL
