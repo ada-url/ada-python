@@ -138,9 +138,11 @@ Contrast that with the Python standard library's ``urlib.parse`` module:
     >>> parsed_url.path
     '/./path/../path2/'
 
-Alternative (can_ada)
------------
+Alternative Python bindings
+---------------------------
 
-The ada-python bindings are built on CFFI, an approach that has the binding between C and Python written in Python itself, which loses some of the performance benefits of using Ada in the first place when most of the time is spent just making the function call.
-
-The can_ada (Canadian Ada) is a different Python binding that uses pybind11 to generate the binding code, which is then compiled into a Python extension module. This approach has the potential to be much faster than the ada-python bindings. See  https://tkte.ch/articles/2024/03/15/parsing-urls-in-python.html
+This package uses `CFFI <https://github.com/ada-url/ada-python/>`__ to call
+the ``Ada`` library's functions, which has a performance cost.
+The alternative `can_ada <https://github.com/ada-url/ada-python/>`__ (Canadian Ada)
+package uses `pybind11 <https://pybind11.readthedocs.io/en/stable/>` to generate a
+Python extension module, which is more performant.
