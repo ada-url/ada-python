@@ -144,5 +144,5 @@ Alternative Python bindings
 This package uses `CFFI <https://github.com/ada-url/ada-python/>`__ to call
 the ``Ada`` library's functions, which has a performance cost.
 The alternative `can_ada <https://github.com/ada-url/ada-python/>`__ (Canadian Ada)
-package uses `pybind11 <https://pybind11.readthedocs.io/en/stable/>` to generate a
+package uses `pybind11 <https://pybind11.readthedocs.io/en/stable/>`__ to generate a
 Python extension module, which is more performant.
