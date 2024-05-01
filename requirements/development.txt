@@ -46,7 +46,7 @@ sphinxcontrib-htmlhelp==2.0.1;python_version<"3.9"
 sphinxcontrib-htmlhelp==2.0.5;python_version>="3.9"
 sphinxcontrib-jsmath==1.0.1
 sphinxcontrib-qthelp==1.0.3
-sphinxcontrib-serializinghtml==1.1.5
+sphinxcontrib-serializinghtml==1.1.10
 tomli==2.0.1
 typing_extensions==4.11.0
 urllib3==2.2.1
