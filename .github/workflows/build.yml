@@ -45,7 +45,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - run: |
-        make requirements
+        make requirements req_args="--break-system-packages"
         python -m build --no-isolation --sdist
     - uses: actions/upload-artifact@v3
       with:
