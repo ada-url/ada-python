@@ -14,7 +14,8 @@ Babel==2.14.0
 backports.tarfile==1.0.0
 certifi==2024.2.2
 charset-normalizer==3.3.2
-docutils==0.21.2
+docutils==0.21.1;python_version<"3.9"
+docutils==0.21.2;python_version>="3.9"
 idna==3.7
 imagesize==1.4.1
 importlib_metadata==7.1.0
