@@ -16,9 +16,6 @@ on:
     types:
       - published
 
-env:
-  PIP_BREAK_SYSTEM_PACKAGES: 1
-
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -31,26 +28,26 @@ jobs:
 
     runs-on: ${{ matrix.os }}
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - run: make requirements
     - name: Set up QEMU  # Needed to build aarch64 wheels
       if: runner.os == 'Linux'
       uses: docker/setup-qemu-action@v2
       with:
         platforms: all
-    - uses: pypa/cibuildwheel@v2.16.5
-    - uses: actions/upload-artifact@v3
+    - uses: pypa/cibuildwheel@v2.17.0
+    - uses: actions/upload-artifact@v4
       with:
         path: wheelhouse/*.whl
 
   make_sdist:
     runs-on: "ubuntu-latest"
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - run: |
         make requirements
         python -m build --no-isolation --sdist
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       with:
         path: dist/*.tar.gz
 
@@ -62,7 +59,7 @@ jobs:
     permissions:
       id-token: write
     steps:
-    - uses: actions/download-artifact@v3
+    - uses: actions/download-artifact@v4
       with:
         name: artifact
         path: dist
