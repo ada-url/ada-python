@@ -16,6 +16,9 @@ on:
     types:
       - published
 
+env:
+  PIP_BREAK_SYSTEM_PACKAGES: 1
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
