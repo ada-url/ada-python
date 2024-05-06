@@ -16,6 +16,9 @@ on:
     types:
       - published
 
+env:
+  PIP_BREAK_SYSTEM_PACKAGES: 1
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -45,7 +48,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - run: |
-        make requirements req_args="--break-system-packages"
+        make requirements
         python -m build --no-isolation --sdist
     - uses: actions/upload-artifact@v3
       with:
