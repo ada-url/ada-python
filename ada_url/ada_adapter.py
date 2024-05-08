@@ -234,38 +234,73 @@ class URL:
         return super().__dir__() + list(PARSE_ATTRIBUTES)
 
     def __getattr__(self, attr: str) -> Union[str, HostType, SchemeType]:
-        if attr in GET_ATTRIBUTES:
-            get_func = getattr(lib, f'ada_get_{attr}')
-            data = get_func(self.urlobj)
-            if attr == 'origin':
-                ret = _get_str(data)
-                lib.ada_free_owned_string(data)
-            elif attr == 'host_type':
-                ret = HostType(data)
-            elif attr == 'scheme_type':
-                ret = SchemeType(data)
-            else:
-                ret = _get_str(data)
+        if attr == 'href':
+            ret = _get_str(lib.ada_get_href(self.urlobj))
+        elif attr == 'username':
+            ret = _get_str(lib.ada_get_username(self.urlobj))
+        elif attr == 'password':
+            ret = _get_str(lib.ada_get_password(self.urlobj))
+        elif attr == 'protocol':
+            ret = _get_str(lib.ada_get_protocol(self.urlobj))
+        elif attr == 'port':
+            ret = _get_str(lib.ada_get_port(self.urlobj))
+        elif attr == 'hostname':
+            ret = _get_str(lib.ada_get_hostname(self.urlobj))
+        elif attr == 'host':
+            ret = _get_str(lib.ada_get_host(self.urlobj))
+        elif attr == 'pathname':
+            ret = _get_str(lib.ada_get_pathname(self.urlobj))
+        elif attr == 'search':
+            ret = _get_str(lib.ada_get_search(self.urlobj))
+        elif attr == 'hash':
+            ret = _get_str(lib.ada_get_hash(self.urlobj))
+        elif attr == 'origin':
+            data = lib.ada_get_origin(self.urlobj)
+            ret = _get_str(data)
+            lib.ada_free_owned_string(data)
+        elif attr == 'host_type':
+            ret = HostType(lib.ada_get_host_type(self.urlobj))
+        elif attr == 'scheme_type':
+            ret = SchemeType(lib.ada_get_scheme_type(self.urlobj))
+        else:
+            raise AttributeError(f'no attribute named {attr}')
 
-            return ret
-
-        raise AttributeError(f'no attribute named {attr}')
+        return ret
 
     def __setattr__(self, attr: str, value: str) -> None:
-        if attr in SET_ATTRIBUTES:
-            try:
-                value_bytes = value.encode('utf-8')
-            except Exception:
-                raise ValueError(f'Invalid value for {attr}') from None
+        if attr == 'href':
+            set_func = lib.ada_set_href
+        elif attr == 'username':
+            set_func = lib.ada_set_username
+        elif attr == 'password':
+            set_func = lib.ada_set_password
+        elif attr == 'protocol':
+            set_func = lib.ada_set_protocol
+        elif attr == 'port':
+            set_func = lib.ada_set_port
+        elif attr == 'hostname':
+            set_func = lib.ada_set_hostname
+        elif attr == 'host':
+            set_func = lib.ada_set_host
+        elif attr == 'pathname':
+            set_func = lib.ada_set_pathname
+        elif attr == 'search':
+            set_func = lib.ada_set_search
+        elif attr == 'hash':
+            set_func = lib.ada_set_hash
+        else:
+            return super().__setattr__(attr, value)
 
-            set_func = getattr(lib, f'ada_set_{attr}')
-            ret = set_func(self.urlobj, value_bytes, len(value_bytes))
-            if (ret is not None) and (not ret):
-                raise ValueError(f'Invalid value for {attr}') from None
+        try:
+            value_bytes = value.encode('utf-8')
+        except Exception:
+            raise ValueError(f'Invalid value for {attr}') from None
 
-            return ret
+        ret = set_func(self.urlobj, value_bytes, len(value_bytes))
+        if (ret is not None) and (not ret):
+            raise ValueError(f'Invalid value for {attr}') from None
 
-        return super().__setattr__(attr, value)
+        return ret
 
     def __str__(self):
         return self.href
