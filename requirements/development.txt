@@ -30,7 +30,7 @@ mdurl==0.1.2
 more-itertools==10.2.0
 nh3==0.2.17
 packaging==24.0
-pkginfo==1.10.0
+pkginfo==1.11.0
 Pygments==2.17.2
 pyproject_hooks==1.0.0
 pytz==2024.1
