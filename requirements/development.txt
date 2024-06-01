@@ -4,7 +4,7 @@ coverage==7.4.3
 ruff==0.3.7
 setuptools==69.5.1
 Sphinx==7.1.2
-twine==5.0.0
+twine==5.1.0
 wheel==0.43.0
 
 # What we need
