@@ -4,6 +4,7 @@ ruff
 setuptools
 Sphinx
 twine
+urllib3
 wheel
 
 -r base.txt
