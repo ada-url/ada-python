@@ -33,7 +33,7 @@ exclude = ["tests"]
 include-package-data = true
 
 [tool.setuptools.package-data]
-ada_url = ["*.c", "*.h"]
+ada_url = ["*.c", "*.h", "*.o"]
 
 [tool.black]
 line-length = 88
