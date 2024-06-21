@@ -29,6 +29,9 @@ Repository = "https://github.com/ada-url/ada-python"
 [tool.setuptools.packages.find]
 exclude = ["tests"]
 
+[tool.setuptools]
+include-package-data = true
+
 [tool.black]
 line-length = 88
 target-version = ['py38']
