@@ -33,14 +33,18 @@ jobs:
         python-version: "3.8"
     - name: Install dependencies
       run: |
+        python -m venv .venv
+        source .venv/bin/activate
         make requirements
     - name: Build packages
       run: |
         make package
     - name: Run tests
       run: |
+        source .venv/bin/activate
         pip install -e .
         make coverage
     - name: Check docs
       run: |
+        source .venv/bin/activate
         make docs
