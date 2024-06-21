@@ -1,5 +1,0 @@
-include ada_url/ada_c.h
-include ada_url/ada.cpp
-include ada_url/ada.h
-include ada_url/ada.o
-include ada_url/py.typed
