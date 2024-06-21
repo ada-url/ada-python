@@ -38,4 +38,5 @@ c_lib:
 .PHONY: package
 package: c_lib
 	python -m build --no-isolation
+	python ./update_sdist.py
 	twine check dist/*
