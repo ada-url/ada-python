@@ -1,6 +1,6 @@
 .PHONY: requirements
 requirements:
-	python -m pip install -r requirements/development.txt ${req_args}
+	python -m pip install -U -r requirements/development.txt ${req_args}
 
 .PHONY: check
 check:
