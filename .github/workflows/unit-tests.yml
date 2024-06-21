@@ -38,6 +38,7 @@ jobs:
         make requirements
     - name: Build packages
       run: |
+        source .venv/bin/activate
         make package
     - name: Run tests
       run: |
