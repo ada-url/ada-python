@@ -1,6 +1,6 @@
 .PHONY: requirements
 requirements:
-	python3 -m pip install -r requirements/development.txt ${req_args}
+	python -m pip install -U -r requirements/development.txt ${req_args}
 
 .PHONY: check
 check:
@@ -38,4 +38,5 @@ c_lib:
 .PHONY: package
 package: c_lib
 	python -m build --no-isolation
+	python ./update_sdist.py
 	twine check dist/*

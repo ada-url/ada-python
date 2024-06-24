@@ -21,12 +21,12 @@ jobs:
   build_test:
     strategy:
       matrix:
-        os: ["ubuntu-20.04", "macos-11"]
+        os: ["ubuntu-latest", "macos-latest"]
 
     runs-on: ${{ matrix.os }}
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Set up Python 3.8
       uses: actions/setup-python@v4
       with:
