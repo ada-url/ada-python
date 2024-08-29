@@ -1,5 +1,5 @@
 [build-system]
-requires = ["cffi", "setuptools < 74", "urllib3", "wheel"]
+requires = ["cffi>=1.17.1", "setuptools", "urllib3", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -73,13 +73,16 @@ build = [
 
 [tool.cibuildwheel.linux]
 archs = ["x86_64", "aarch64"]
-before-all = "make c_lib"
 
 [tool.cibuildwheel.macos]
 archs = ["x86_64", "universal2", "arm64"]
 environment = { MACOSX_DEPLOYMENT_TARGET="10.15" }
-before-build = "make clean && make c_lib"
+before-build = "make clean"
 
 [tool.cibuildwheel.windows]
 archs = ["AMD64"]
-before-build = '"C:\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise\\VC\\Auxiliary\\Build\\vcvars64.bat" && cl "ada_url\\ada.cpp" /c /nologo /Fo"ada_url\\ada.o" /O2 /GL /MD /W3 /EHsc /std:c++17'
+
+# https://github.com/pypy/pypy/issues/5027
+[[tool.cibuildwheel.overrides]]
+select = "pp39-win_amd64"
+environment = { SETUPTOOLS_USE_DISTUTILS="stdlib" }

@@ -1,7 +1,7 @@
 build
 coverage
 ruff
-setuptools<74
+setuptools
 Sphinx
 twine
 urllib3

@@ -30,7 +30,6 @@ After that, you're ready to build the package:
 .. code-block:: sh
 
     python -m pip install -r requirements/development.txt
-    c++ -c "ada_url/ada.cpp" -fPIC -std="c++17" -O2 -o "ada_url/ada.o"
     python -m build --no-isolation
 
 This will create a `.whl` file in the `dist` directory. You can install it in other
