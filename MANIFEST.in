@@ -1,0 +1,5 @@
+include ada_url/*.c
+include ada_url/*.cpp
+include ada_url/*.h
+exclude ada_url/*.o
+exclude ada_url/_ada_wrapper.*
