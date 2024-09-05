@@ -69,6 +69,7 @@ build = [
     "cp312-*",
     "pp38-*",
     "pp39-*",
+    "pp310-*",
 ]
 
 [tool.cibuildwheel.linux]
@@ -84,5 +85,5 @@ archs = ["AMD64"]
 
 # https://github.com/pypy/pypy/issues/5027
 [[tool.cibuildwheel.overrides]]
-select = "pp39-win_amd64"
+select = "pp3{9,10}-win_amd64"
 environment = { SETUPTOOLS_USE_DISTUTILS="stdlib" }
