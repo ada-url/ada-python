@@ -261,6 +261,7 @@ class ADAURLTests(TestCase):
             with self.subTest(s=s):
                 actual = join_url(base_url, s)
                 self.assertEqual(actual, expected)
+                self.assertEqual((URL(base_url) / s).href, expected)
 
     def test_join_url_invalid(self):
         for base_url, s in (

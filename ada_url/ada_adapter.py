@@ -291,6 +291,9 @@ class URL:
         return lib.ada_can_parse_with_base(
             url_bytes, len(url_bytes), base_bytes, len(base_bytes)
         )
+    
+    def __truediv__(self, other):
+        return self.__class__(other, base=self.href)
 
 
 class URLSearchParams:
@@ -470,7 +473,7 @@ class URLSearchParams:
             lib.ada_search_params_to_string, lib.ada_free_owned_string, self.paramsobj
         )
         return _get_str(result)
-
+        
 
 def check_url(s: str) -> bool:
     """
