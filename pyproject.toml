@@ -10,7 +10,7 @@ authors = [
 ]
 description = 'URL parser and manipulator based on the WHAT WG URL standard'
 readme = "README.rst"
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 license = {text = "Apache 2.0"}
 classifiers = [
     "License :: OSI Approved :: Apache Software License",
@@ -35,14 +35,9 @@ include-package-data = true
 [tool.setuptools.package-data]
 ada_url = ["*.c", "*.h", "*.o"]
 
-[tool.black]
-line-length = 88
-target-version = ['py38']
-skip-string-normalization = true
-
 [tool.ruff]
 line-length = 88
-target-version = "py38"
+target-version = "py39"
 exclude = [
     ".git",
     ".ruff_cache",
@@ -62,13 +57,11 @@ include = [
 
 [tool.cibuildwheel]
 build = [
-    "cp38-*",
     "cp39-*",
     "cp310-*",
     "cp311-*",
     "cp312-*",
     "cp313-*",
-    "pp38-*",
     "pp39-*",
     "pp310-*",
 ]
