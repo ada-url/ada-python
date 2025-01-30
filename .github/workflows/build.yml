@@ -34,17 +34,12 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - run: make requirements
-    - if: runner.os == 'Linux'
-      run: |
-        sudo apt-get install g++-12
     - name: Set up QEMU  # Needed to build aarch64 wheels
       if: runner.os == 'Linux'
       uses: docker/setup-qemu-action@v3
       with:
         platforms: all
     - uses: pypa/cibuildwheel@v2.21.2
-      env:
-        CXX: "g++-12"
     - uses: actions/upload-artifact@v4
       with:
         name: artifact-wheel-${{ matrix.os }}
