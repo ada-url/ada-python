@@ -69,8 +69,6 @@ manylinux-x86_64-image = "manylinux_2_28"
 
 [tool.cibuildwheel.linux]
 archs = ["x86_64", "aarch64"]
-environment = "CXX='g++-12'"
-before-build = "apt-get -y install g++-12"
 
 [tool.cibuildwheel.macos]
 archs = ["x86_64", "universal2", "arm64"]
