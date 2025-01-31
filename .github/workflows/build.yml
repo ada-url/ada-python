@@ -34,7 +34,6 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - run: make requirements
-    - if: runner.os == 'Linux'
     - name: Set up QEMU  # Needed to build aarch64 wheels
       if: runner.os == 'Linux'
       uses: docker/setup-qemu-action@v3
