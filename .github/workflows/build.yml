@@ -35,8 +35,6 @@ jobs:
     - uses: actions/checkout@v4
     - run: make requirements
     - if: runner.os == 'Linux'
-      run: |
-        sudo apt-get install g++-12
     - name: Set up QEMU  # Needed to build aarch64 wheels
       if: runner.os == 'Linux'
       uses: docker/setup-qemu-action@v3
