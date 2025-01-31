@@ -16,6 +16,10 @@ on:
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
+
+
+env:
+  MACOSX_DEPLOYMENT_TARGET: "10.15"
   
 jobs:
   build_test:
