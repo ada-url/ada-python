@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ada-url"
-version = "1.15.3"
+version = "1.16.0"
 authors = [
     {name = "Bo Bayles", email = "bo@bbayles.com"},
 ]
@@ -65,6 +65,8 @@ build = [
     "pp39-*",
     "pp310-*",
 ]
+manylinux-x86_64-image = "manylinux_2_28"
+manylinux-aarch64-image = "manylinux_2_28"
 
 [tool.cibuildwheel.linux]
 archs = ["x86_64", "aarch64"]

@@ -5,7 +5,7 @@ from sys import platform
 
 file_dir = dirname(__file__)
 
-compile_args = ['/std:c++17'] if platform == 'win32' else ['-std=c++17']
+compile_args = ['/std:c++20'] if platform == 'win32' else ['-std=c++20']
 
 ada_obj = Extension(
     'ada',
