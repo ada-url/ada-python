@@ -16,21 +16,26 @@ on:
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
+
+
+env:
+  MACOSX_DEPLOYMENT_TARGET: "10.15"
   
 jobs:
   build_test:
     strategy:
+      fail-fast: false
       matrix:
-        os: ["ubuntu-20.04", "macos-11"]
+        os: ["ubuntu-latest", "macos-latest"]
 
     runs-on: ${{ matrix.os }}
 
     steps:
-    - uses: actions/checkout@v3
-    - name: Set up Python 3.8
-      uses: actions/setup-python@v4
+    - uses: actions/checkout@v4
+    - name: Set up Python 3.9
+      uses: actions/setup-python@v5
       with:
-        python-version: "3.8"
+        python-version: "3.9"
     - name: Install dependencies
       run: |
         make requirements

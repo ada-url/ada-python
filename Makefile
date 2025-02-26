@@ -6,16 +6,15 @@ ci_requirements:
 .PHONY: requirements
 requirements:
 	python3 -m pip install uv
-	python3 -m uv pip install -r requirements/development.txt
+	python -m uv pip install -U -r requirements/development.txt ${req_args}
 
 .PHONY: check
 check:
-	black --check .
-	ruff .
+	ruff check .
 
 .PHONY: format
 format:
-	black .
+	ruff format .
 
 .PHONY: coverage
 coverage:
@@ -38,11 +37,7 @@ clean:
 	$(RM) ada_url/_ada_wrapper.abi3.so
 	$(RM) ada_url/ada.o
 
-.PHONY: c_lib
-c_lib:
-	$(CXX) -c "ada_url/ada.cpp" -fPIC -std="c++17" -O2 -o "ada_url/ada.o" $(ARCHFLAGS)
-
 .PHONY: package
-package: c_lib
+package:
 	python -m build --no-isolation
 	twine check dist/*

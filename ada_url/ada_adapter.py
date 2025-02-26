@@ -115,7 +115,7 @@ def _get_obj(constructor, destructor, *args):
 
 
 def _get_str(x):
-    ret = ffi.string(x.data, x.length).decode('utf-8') if x.length else ''
+    ret = ffi.string(x.data, x.length).decode() if x.length else ''
     return ret
 
 
@@ -185,14 +185,14 @@ class URL:
     scheme_type: Final[SchemeType]
 
     def __init__(self, url: str, base: Optional[str] = None):
-        url_bytes = url.encode('utf-8')
+        url_bytes = url.encode()
 
         if base is None:
             self.urlobj = _get_obj(
                 lib.ada_parse, lib.ada_free, url_bytes, len(url_bytes)
             )
         else:
-            base_bytes = base.encode('utf-8')
+            base_bytes = base.encode()
             self.urlobj = _get_obj(
                 lib.ada_parse_with_base,
                 lib.ada_free,
@@ -254,7 +254,7 @@ class URL:
     def __setattr__(self, attr: str, value: str) -> None:
         if attr in SET_ATTRIBUTES:
             try:
-                value_bytes = value.encode('utf-8')
+                value_bytes = value.encode()
             except Exception:
                 raise ValueError(f'Invalid value for {attr}') from None
 
@@ -276,7 +276,7 @@ class URL:
     @staticmethod
     def can_parse(url: str, base: Optional[str] = None) -> bool:
         try:
-            url_bytes = url.encode('utf-8')
+            url_bytes = url.encode()
         except Exception:
             return False
 
@@ -284,7 +284,7 @@ class URL:
             return lib.ada_can_parse(url_bytes, len(url_bytes))
 
         try:
-            base_bytes = base.encode('utf-8')
+            base_bytes = base.encode()
         except Exception:
             return False
 
@@ -347,7 +347,7 @@ class URLSearchParams:
     """
 
     def __init__(self, params: str):
-        params_bytes = params.encode('utf-8')
+        params_bytes = params.encode()
         self.paramsobj = _get_obj(
             lib.ada_parse_search_params,
             lib.ada_free_search_params,
@@ -363,8 +363,8 @@ class URLSearchParams:
         return self.size
 
     def append(self, key: str, value: str):
-        key_bytes = key.encode('utf-8')
-        value_bytes = value.encode('utf-8')
+        key_bytes = key.encode()
+        value_bytes = value.encode()
         lib.ada_search_params_append(
             self.paramsobj,
             key_bytes,
@@ -374,11 +374,11 @@ class URLSearchParams:
         )
 
     def delete(self, key: str, value: Optional[str] = None):
-        key_bytes = key.encode('utf-8')
+        key_bytes = key.encode()
         if value is None:
             lib.ada_search_params_remove(self.paramsobj, key_bytes, len(key_bytes))
         else:
-            value_bytes = value.encode('utf-8')
+            value_bytes = value.encode()
             lib.ada_search_params_remove_value(
                 self.paramsobj,
                 key_bytes,
@@ -388,12 +388,12 @@ class URLSearchParams:
             )
 
     def get(self, key: str) -> str:
-        key_bytes = key.encode('utf-8')
+        key_bytes = key.encode()
         item = lib.ada_search_params_get(self.paramsobj, key_bytes, len(key_bytes))
         return _get_str(item)
 
     def get_all(self, key: str) -> List[str]:
-        key_bytes = key.encode('utf-8')
+        key_bytes = key.encode()
         items = lib.ada_search_params_get_all(self.paramsobj, key_bytes, len(key_bytes))
         count = lib.ada_strings_size(items)
 
@@ -405,11 +405,11 @@ class URLSearchParams:
         return ret
 
     def has(self, key: str, value: Optional[str] = None) -> bool:
-        key_bytes = key.encode('utf-8')
+        key_bytes = key.encode()
         if value is None:
             return lib.ada_search_params_has(self.paramsobj, key_bytes, len(key_bytes))
         else:
-            value_bytes = value.encode('utf-8')
+            value_bytes = value.encode()
             return lib.ada_search_params_has_value(
                 self.paramsobj,
                 key_bytes,
@@ -419,8 +419,8 @@ class URLSearchParams:
             )
 
     def set(self, key: str, value: str):
-        key_bytes = key.encode('utf-8')
-        value_bytes = value.encode('utf-8')
+        key_bytes = key.encode()
+        value_bytes = value.encode()
         lib.ada_search_params_set(
             self.paramsobj,
             key_bytes,
@@ -486,7 +486,7 @@ def check_url(s: str) -> bool:
 
     """
     try:
-        s_bytes = s.encode('utf-8')
+        s_bytes = s.encode()
     except Exception:
         return False
 
@@ -508,8 +508,8 @@ def join_url(base_url: str, s: str) -> str:
 
     """
     try:
-        base_bytes = base_url.encode('utf-8')
-        s_bytes = s.encode('utf-8')
+        base_bytes = base_url.encode()
+        s_bytes = s.encode()
     except Exception:
         raise ValueError('Invalid URL') from None
 
@@ -584,7 +584,7 @@ def parse_url(s: str, attributes: Iterable[str] = PARSE_ATTRIBUTES) -> ParseAttr
 
     """
     try:
-        s_bytes = s.encode('utf-8')
+        s_bytes = s.encode()
     except Exception:
         raise ValueError('Invalid URL') from None
 
@@ -629,7 +629,7 @@ def replace_url(s: str, **kwargs: str) -> str:
     ``ValueError`` is raised if the input URL or one of the components is not valid.
     """
     try:
-        s_bytes = s.encode('utf-8')
+        s_bytes = s.encode()
     except Exception:
         raise ValueError('Invalid URL') from None
 
@@ -645,7 +645,7 @@ def replace_url(s: str, **kwargs: str) -> str:
             continue
 
         try:
-            value_bytes = value.encode('utf-8')
+            value_bytes = value.encode()
         except Exception:
             raise ValueError(f'Invalid value for {attr}') from None
 
@@ -745,7 +745,7 @@ class idna:
     @staticmethod
     def encode(s: Union[str, bytes]) -> str:
         if isinstance(s, str):
-            s = s.encode('utf-8')
+            s = s.encode()
 
         val = _get_obj(lib.ada_idna_to_ascii, lib.ada_free_owned_string, s, len(s))
         return ffi.string(val.data, val.length) if val.length else b''

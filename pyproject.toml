@@ -1,41 +1,85 @@
 [build-system]
-requires = ["cffi", "setuptools", "urllib3>=2.0.2", "wheel"]
+requires = ["cffi>=1.17.1", "setuptools", "urllib3", "wheel"]
 build-backend = "setuptools.build_meta"
 
-[tool.black]
-line-length = 88
-target-version = ['py38']
-skip-string-normalization = true
+[project]
+name = "ada-url"
+version = "1.19.0"
+authors = [
+    {name = "Bo Bayles", email = "bo@bbayles.com"},
+]
+description = 'URL parser and manipulator based on the WHAT WG URL standard'
+readme = "README.rst"
+requires-python = ">=3.9"
+license = {text = "Apache 2.0"}
+classifiers = [
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+]
+dependencies = [
+    "cffi",
+]
+
+[project.urls]
+Homepage = "https://www.ada-url.com/"
+Documentation = "https://ada-url.readthedocs.io"
+Repository = "https://github.com/ada-url/ada-python"
+
+[tool.setuptools.packages.find]
+exclude = ["tests"]
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.package-data]
+ada_url = ["*.c", "*.h", "*.o"]
 
 [tool.ruff]
-select = ["E", "F"]
 line-length = 88
-target-version = "py38"
+target-version = "py39"
 exclude = [
     ".git",
     ".ruff_cache",
 ]
 
+[tool.ruff.format]
+quote-style = "single"
+
+[tool.ruff.lint]
+select = ["E", "F"]
+ignore = ["E501"]
+
+[tool.coverage.run]
+include = [
+    "ada_url/**",
+]
+
 [tool.cibuildwheel]
 build = [
-    "cp38-*",
     "cp39-*",
     "cp310-*",
     "cp311-*",
     "cp312-*",
-    "pp38-*",
+    "cp313-*",
     "pp39-*",
+    "pp310-*",
 ]
+manylinux-x86_64-image = "manylinux_2_28"
+manylinux-aarch64-image = "manylinux_2_28"
 
 [tool.cibuildwheel.linux]
 archs = ["x86_64", "aarch64"]
-before-all = "make c_lib"
 
 [tool.cibuildwheel.macos]
 archs = ["x86_64", "universal2", "arm64"]
 environment = { MACOSX_DEPLOYMENT_TARGET="10.15" }
-before-build = "make clean && make c_lib"
+before-build = "make clean"
 
 [tool.cibuildwheel.windows]
 archs = ["AMD64"]
-before-build = '"C:\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise\\VC\\Auxiliary\\Build\\vcvars64.bat" && cl "ada_url\\ada.cpp" /c /nologo /Fo"ada_url\\ada.o" /O2 /GL /MD /W3 /EHsc /std:c++17'
+
+# https://github.com/pypy/pypy/issues/5027
+[[tool.cibuildwheel.overrides]]
+select = "pp3{9,10}-win_amd64"
+environment = { SETUPTOOLS_USE_DISTUTILS="stdlib" }

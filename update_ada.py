@@ -4,6 +4,7 @@ update_ada.py
 Run this script to pull in the latest version of `ada-url/ada` single
 header package.
 """
+
 from io import BytesIO
 from os.path import dirname, join
 from zipfile import ZipFile

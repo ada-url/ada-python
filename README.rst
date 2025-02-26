@@ -1,7 +1,10 @@
 ada-url
 ========
 
-This is ``ada_url``, a Python library for working with URLs based on the ``Ada`` URL
+The `urlib.parse` module in Python does not follow the legacy RFC 3978 standard nor
+does it follow the newer WHATWG URL specification. It is also relatively slow.
+
+This is ``ada_url``, a fast standard-compliant Python library for working with URLs based on the ``Ada`` URL
 parser.
 
 * `Documentation <https://ada-url.readthedocs.io>`__
@@ -134,3 +137,12 @@ Contrast that with the Python standard library's ``urlib.parse`` module:
     'www.googlé.com'
     >>> parsed_url.path
     '/./path/../path2/'
+
+Alternative Python bindings
+---------------------------
+
+This package uses `CFFI <https://github.com/ada-url/ada-python/>`__ to call
+the ``Ada`` library's functions, which has a performance cost.
+The alternative `can_ada <https://github.com/tktech/can_ada>`__ (Canadian Ada)
+package uses `pybind11 <https://pybind11.readthedocs.io/en/stable/>`__ to generate a
+Python extension module, which is more performant.
