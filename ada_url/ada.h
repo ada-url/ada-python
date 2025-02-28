@@ -1,4 +1,4 @@
-/* auto-generated on 2025-02-25 13:08:18 -0500. Do not edit! */
+/* auto-generated on 2025-02-26 20:29:12 -0500. Do not edit! */
 /* begin file include/ada.h */
 /**
  * @file ada.h
@@ -9480,7 +9480,8 @@ constructor_string_parser<regex_provider>::is_non_special_pattern_char(
   // If token’s value is not value, then return false.
   // TODO: Remove this once we make sure get_safe_token returns a non-empty
   // string.
-  if (!token->value.empty() && token->value[0] != value) {
+  if (!token->value.empty() &&
+      static_cast<uint32_t>(token->value[0]) != value) {
     return false;
   }
 
@@ -10478,14 +10479,14 @@ constructor_string_parser<regex_provider>::parse(std::string_view input) {
 #ifndef ADA_ADA_VERSION_H
 #define ADA_ADA_VERSION_H
 
-#define ADA_VERSION "3.1.2"
+#define ADA_VERSION "3.1.3"
 
 namespace ada {
 
 enum {
   ADA_VERSION_MAJOR = 3,
   ADA_VERSION_MINOR = 1,
-  ADA_VERSION_REVISION = 2,
+  ADA_VERSION_REVISION = 3,
 };
 
 }  // namespace ada
