@@ -1,4 +1,4 @@
-/* auto-generated on 2025-03-10 11:49:55 -0400. Do not edit! */
+/* auto-generated on 2025-03-10 13:14:56 -0400. Do not edit! */
 /* begin file include/ada.h */
 /**
  * @file ada.h
@@ -10462,6 +10462,7 @@ constructor_string_parser<regex_provider>::parse(std::string_view input) {
         if (parser.is_hash_prefix()) {
           parser.change_state(State::HASH, 1);
         }
+        break;
       }
       case State::HASH: {
         // Do nothing
@@ -10502,14 +10503,14 @@ constructor_string_parser<regex_provider>::parse(std::string_view input) {
 #ifndef ADA_ADA_VERSION_H
 #define ADA_ADA_VERSION_H
 
-#define ADA_VERSION "3.2.0"
+#define ADA_VERSION "3.2.1"
 
 namespace ada {
 
 enum {
   ADA_VERSION_MAJOR = 3,
   ADA_VERSION_MINOR = 2,
-  ADA_VERSION_REVISION = 0,
+  ADA_VERSION_REVISION = 1,
 };
 
 }  // namespace ada
