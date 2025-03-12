@@ -743,7 +743,7 @@ class idna:
         return _get_str(data)
 
     @staticmethod
-    def encode(s: Union[str, bytes]) -> str:
+    def encode(s: Union[str, bytes]) -> bytes:
         if isinstance(s, str):
             s = s.encode()
 
