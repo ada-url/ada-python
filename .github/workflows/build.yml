@@ -33,7 +33,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
-    - run: make requirements
+    - run: make ci_requirements
     - name: Set up QEMU  # Needed to build aarch64 wheels
       if: runner.os == 'Linux'
       uses: docker/setup-qemu-action@v3
@@ -50,7 +50,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - run: |
-        make requirements
+        make ci_requirements
         python -m build --no-isolation --sdist
     - uses: actions/upload-artifact@v4
       with:
