@@ -24,7 +24,7 @@ Parsing URLs
 ^^^^^^^^^^^^
 
 The ``URL`` class is intended to match the one described in the
-`WHATWG URL spec <https://url.spec.whatwg.org/#url-class>`_:.
+`WHATWG URL spec <https://url.spec.whatwg.org/#url-class>`_.
 
 .. code-block:: python
 
