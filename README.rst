@@ -1,9 +1,6 @@
 ada-url
 ========
 
-The `urlib.parse` module in Python does not follow the legacy RFC 3978 standard nor
-does it follow the newer WHATWG URL specification. It is also relatively slow.
-
 This is ``ada_url``, a fast standard-compliant Python library for working with URLs based on the ``Ada`` URL
 parser.
 
@@ -27,7 +24,7 @@ Parsing URLs
 ^^^^^^^^^^^^
 
 The ``URL`` class is intended to match the one described in the
-`WHATWG URL spec <https://url.spec.whatwg.org/#url-class>`_:.
+`WHATWG URL spec <https://url.spec.whatwg.org/#url-class>`_.
 
 .. code-block:: python
 
@@ -127,7 +124,8 @@ that it properly encodes IDNs and resolves paths:
     >>> parsed_url.pathname
     '/path2/'
 
-Contrast that with the Python standard library's ``urlib.parse`` module:
+Contrast that with the Python standard library's ``urllib.parse`` module, which loosely
+follows the older `RFC 3978 <https://datatracker.ietf.org/doc/html/rfc3978>`__ standard:
 
 .. code-block:: python
 
@@ -138,11 +136,13 @@ Contrast that with the Python standard library's ``urlib.parse`` module:
     >>> parsed_url.path
     '/./path/../path2/'
 
-Alternative Python bindings
----------------------------
+Performance
+-----------
 
 This package uses `CFFI <https://github.com/ada-url/ada-python/>`__ to call
-the ``Ada`` library's functions, which has a performance cost.
-The alternative `can_ada <https://github.com/tktech/can_ada>`__ (Canadian Ada)
-package uses `pybind11 <https://pybind11.readthedocs.io/en/stable/>`__ to generate a
-Python extension module, which is more performant.
+the ``Ada`` C library's functions, which makes it faster than the Python standard
+library's ``urllib.parse`` module for most applications.
+
+An alternative package, `can_ada <https://github.com/tktech/can_ada>`__, uses
+`pybind11 <https://pybind11.readthedocs.io/en/stable/>`__ to interact with the ``Ada``
+C++ library functions, which is even faster.

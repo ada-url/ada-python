@@ -1,4 +1,4 @@
-/* auto-generated on 2025-06-30 19:51:09 -0400. Do not edit! */
+/* auto-generated on 2025-07-16 22:15:14 -0400. Do not edit! */
 /* begin file src/ada.cpp */
 #include "ada.h"
 /* begin file src/checkers.cpp */
@@ -67,7 +67,8 @@ static constexpr std::array<uint8_t, 256> path_signature_table =
       std::array<uint8_t, 256> result{};
       for (size_t i = 0; i < 256; i++) {
         if (i <= 0x20 || i == 0x22 || i == 0x23 || i == 0x3c || i == 0x3e ||
-            i == 0x3f || i == 0x60 || i == 0x7b || i == 0x7d || i > 0x7e) {
+            i == 0x3f || i == 0x5e || i == 0x60 || i == 0x7b || i == 0x7d ||
+            i > 0x7e) {
           result[i] = 1;
         } else if (i == 0x25) {
           result[i] = 8;
@@ -10444,6 +10445,8 @@ ADA_POP_DISABLE_WARNINGS
 #include <arm_neon.h>
 #elif ADA_SSE2
 #include <emmintrin.h>
+#elif ADA_LSX
+#include <lsxintrin.h>
 #endif
 
 #include <ranges>
@@ -10551,6 +10554,38 @@ ada_really_inline bool has_tabs_or_newline(
         _mm_cmpeq_epi8(word, mask3));
   }
   return _mm_movemask_epi8(running) != 0;
+}
+#elif ADA_LSX
+ada_really_inline bool has_tabs_or_newline(
+    std::string_view user_input) noexcept {
+  // first check for short strings in which case we do it naively.
+  if (user_input.size() < 16) {  // slow path
+    return std::ranges::any_of(user_input, is_tabs_or_newline);
+  }
+  // fast path for long strings (expected to be common)
+  size_t i = 0;
+  const __m128i mask1 = __lsx_vrepli_b('\r');
+  const __m128i mask2 = __lsx_vrepli_b('\n');
+  const __m128i mask3 = __lsx_vrepli_b('\t');
+  // If we supported SSSE3, we could use the algorithm that we use for NEON.
+  __m128i running{0};
+  for (; i + 15 < user_input.size(); i += 16) {
+    __m128i word = __lsx_vld((const __m128i*)(user_input.data() + i), 0);
+    running = __lsx_vor_v(
+        __lsx_vor_v(running, __lsx_vor_v(__lsx_vseq_b(word, mask1),
+                                         __lsx_vseq_b(word, mask2))),
+        __lsx_vseq_b(word, mask3));
+  }
+  if (i < user_input.size()) {
+    __m128i word = __lsx_vld(
+        (const __m128i*)(user_input.data() + user_input.length() - 16), 0);
+    running = __lsx_vor_v(
+        __lsx_vor_v(running, __lsx_vor_v(__lsx_vseq_b(word, mask1),
+                                         __lsx_vseq_b(word, mask2))),
+        __lsx_vseq_b(word, mask3));
+  }
+  if (__lsx_bz_v(running)) return false;
+  return true;
 }
 #else
 ada_really_inline bool has_tabs_or_newline(
@@ -11385,6 +11420,58 @@ ada_really_inline size_t find_next_host_delimiter_special(
   }
   return size_t(view.length());
 }
+#elif ADA_LSX
+ada_really_inline size_t find_next_host_delimiter_special(
+    std::string_view view, size_t location) noexcept {
+  // first check for short strings in which case we do it naively.
+  if (view.size() - location < 16) {  // slow path
+    for (size_t i = location; i < view.size(); i++) {
+      if (view[i] == ':' || view[i] == '/' || view[i] == '\\' ||
+          view[i] == '?' || view[i] == '[') {
+        return i;
+      }
+    }
+    return size_t(view.size());
+  }
+  // fast path for long strings (expected to be common)
+  size_t i = location;
+  const __m128i mask1 = __lsx_vrepli_b(':');
+  const __m128i mask2 = __lsx_vrepli_b('/');
+  const __m128i mask3 = __lsx_vrepli_b('\\');
+  const __m128i mask4 = __lsx_vrepli_b('?');
+  const __m128i mask5 = __lsx_vrepli_b('[');
+
+  for (; i + 15 < view.size(); i += 16) {
+    __m128i word = __lsx_vld((const __m128i*)(view.data() + i), 0);
+    __m128i m1 = __lsx_vseq_b(word, mask1);
+    __m128i m2 = __lsx_vseq_b(word, mask2);
+    __m128i m3 = __lsx_vseq_b(word, mask3);
+    __m128i m4 = __lsx_vseq_b(word, mask4);
+    __m128i m5 = __lsx_vseq_b(word, mask5);
+    __m128i m =
+        __lsx_vor_v(__lsx_vor_v(__lsx_vor_v(m1, m2), __lsx_vor_v(m3, m4)), m5);
+    int mask = __lsx_vpickve2gr_hu(__lsx_vmsknz_b(m), 0);
+    if (mask != 0) {
+      return i + trailing_zeroes(mask);
+    }
+  }
+  if (i < view.size()) {
+    __m128i word =
+        __lsx_vld((const __m128i*)(view.data() + view.length() - 16), 0);
+    __m128i m1 = __lsx_vseq_b(word, mask1);
+    __m128i m2 = __lsx_vseq_b(word, mask2);
+    __m128i m3 = __lsx_vseq_b(word, mask3);
+    __m128i m4 = __lsx_vseq_b(word, mask4);
+    __m128i m5 = __lsx_vseq_b(word, mask5);
+    __m128i m =
+        __lsx_vor_v(__lsx_vor_v(__lsx_vor_v(m1, m2), __lsx_vor_v(m3, m4)), m5);
+    int mask = __lsx_vpickve2gr_hu(__lsx_vmsknz_b(m), 0);
+    if (mask != 0) {
+      return view.length() - 16 + trailing_zeroes(mask);
+    }
+  }
+  return size_t(view.length());
+}
 #else
 // : / [ \\ ?
 static constexpr std::array<uint8_t, 256> special_host_delimiters =
@@ -11512,6 +11599,53 @@ ada_really_inline size_t find_next_host_delimiter(std::string_view view,
     __m128i m5 = _mm_cmpeq_epi8(word, mask5);
     __m128i m = _mm_or_si128(_mm_or_si128(m1, m2), _mm_or_si128(m4, m5));
     int mask = _mm_movemask_epi8(m);
+    if (mask != 0) {
+      return view.length() - 16 + trailing_zeroes(mask);
+    }
+  }
+  return size_t(view.length());
+}
+#elif ADA_LSX
+ada_really_inline size_t find_next_host_delimiter(std::string_view view,
+                                                  size_t location) noexcept {
+  // first check for short strings in which case we do it naively.
+  if (view.size() - location < 16) {  // slow path
+    for (size_t i = location; i < view.size(); i++) {
+      if (view[i] == ':' || view[i] == '/' || view[i] == '?' ||
+          view[i] == '[') {
+        return i;
+      }
+    }
+    return size_t(view.size());
+  }
+  // fast path for long strings (expected to be common)
+  size_t i = location;
+  const __m128i mask1 = __lsx_vrepli_b(':');
+  const __m128i mask2 = __lsx_vrepli_b('/');
+  const __m128i mask4 = __lsx_vrepli_b('?');
+  const __m128i mask5 = __lsx_vrepli_b('[');
+
+  for (; i + 15 < view.size(); i += 16) {
+    __m128i word = __lsx_vld((const __m128i*)(view.data() + i), 0);
+    __m128i m1 = __lsx_vseq_b(word, mask1);
+    __m128i m2 = __lsx_vseq_b(word, mask2);
+    __m128i m4 = __lsx_vseq_b(word, mask4);
+    __m128i m5 = __lsx_vseq_b(word, mask5);
+    __m128i m = __lsx_vor_v(__lsx_vor_v(m1, m2), __lsx_vor_v(m4, m5));
+    int mask = __lsx_vpickve2gr_hu(__lsx_vmsknz_b(m), 0);
+    if (mask != 0) {
+      return i + trailing_zeroes(mask);
+    }
+  }
+  if (i < view.size()) {
+    __m128i word =
+        __lsx_vld((const __m128i*)(view.data() + view.length() - 16), 0);
+    __m128i m1 = __lsx_vseq_b(word, mask1);
+    __m128i m2 = __lsx_vseq_b(word, mask2);
+    __m128i m4 = __lsx_vseq_b(word, mask4);
+    __m128i m5 = __lsx_vseq_b(word, mask5);
+    __m128i m = __lsx_vor_v(__lsx_vor_v(m1, m2), __lsx_vor_v(m4, m5));
+    int mask = __lsx_vpickve2gr_hu(__lsx_vmsknz_b(m), 0);
     if (mask != 0) {
       return view.length() - 16 + trailing_zeroes(mask);
     }
@@ -11762,8 +11896,8 @@ ada_really_inline void parse_prepared_path(std::string_view input,
               ? path_buffer_tmp
               : path_view;
       if (unicode::is_double_dot_path_segment(path_buffer)) {
-        if ((helpers::shorten_path(path, type) || special) &&
-            location == std::string_view::npos) {
+        helpers::shorten_path(path, type);
+        if (location == std::string_view::npos) {
           path += '/';
         }
       } else if (unicode::is_single_dot_path_segment(path_buffer) &&
@@ -15318,8 +15452,8 @@ inline void url_aggregator::consume_prepared_path(std::string_view input) {
               ? path_buffer_tmp
               : path_view;
       if (unicode::is_double_dot_path_segment(path_buffer)) {
-        if ((helpers::shorten_path(path, type) || special) &&
-            location == std::string_view::npos) {
+        helpers::shorten_path(path, type);
+        if (location == std::string_view::npos) {
           path += '/';
         }
       } else if (unicode::is_single_dot_path_segment(path_buffer) &&
