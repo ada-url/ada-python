@@ -9,7 +9,7 @@ build:
   jobs:
     pre_install:
       - ls -la /usr/bin | grep -i g++
-      - update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-13 100
+      - update-alternatives --install /usr/bin/g++ g++ /usr/bin/clang++-13 100
       - g++ --version
       - make requirements
       - make package
