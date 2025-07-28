@@ -6,6 +6,7 @@ build:
     python: "3.11"
   jobs:
     pre_install:
+      - g++ --version
       - make requirements
       - make package
       - python -m pip install -e .
