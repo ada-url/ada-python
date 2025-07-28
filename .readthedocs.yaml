@@ -8,6 +8,7 @@ build:
     python: "3.11"
   jobs:
     pre_install:
+      - ls -la /usr/bin/g++
       - update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-13 100
       - g++ --version
       - make requirements
