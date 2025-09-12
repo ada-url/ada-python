@@ -65,7 +65,7 @@ build = [
     "pp39-*",
     "pp310-*",
 ]
-manylinux-x86_64-image = "manylinux_2_28"
+manylinux-x86_64-image = "manylinux2014_x86_64"
 manylinux-aarch64-image = "manylinux_2_28"
 
 [tool.cibuildwheel.linux]
