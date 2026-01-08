@@ -4,13 +4,13 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ada-url"
-version = "1.27.0"
+version = "1.28.0"
 authors = [
     {name = "Bo Bayles", email = "bo@bbayles.com"},
 ]
 description = 'URL parser and manipulator based on the WHAT WG URL standard'
 readme = "README.rst"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 license = {text = "Apache 2.0"}
 classifiers = [
     "License :: OSI Approved :: Apache Software License",
@@ -37,7 +37,7 @@ ada_url = ["*.c", "*.h", "*.o"]
 
 [tool.ruff]
 line-length = 88
-target-version = "py39"
+target-version = "py310"
 exclude = [
     ".git",
     ".ruff_cache",
@@ -57,12 +57,11 @@ include = [
 
 [tool.cibuildwheel]
 build = [
-    "cp39-*",
     "cp310-*",
     "cp311-*",
     "cp312-*",
     "cp313-*",
-    "pp39-*",
+    "cp314-*",
     "pp310-*",
 ]
 manylinux-x86_64-image = "manylinux_2_28"
@@ -81,5 +80,5 @@ archs = ["AMD64"]
 
 # https://github.com/pypy/pypy/issues/5027
 [[tool.cibuildwheel.overrides]]
-select = "pp3{9,10}-win_amd64"
+select = "pp310-win_amd64"
 environment = { SETUPTOOLS_USE_DISTUTILS="stdlib" }
