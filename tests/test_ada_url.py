@@ -9,6 +9,7 @@ from ada_url import (
     URLSearchParams as SearchParams,
     URL,
     check_url,
+    get_version,
     idna,
     idna_to_ascii,
     idna_to_unicode,
@@ -548,3 +549,12 @@ class ParseTests(TestCase):
                 else:
                     urlobj = URL(s, base=base)
                     self.assertEqual(urlobj.href, item['href'])
+
+
+class GetVersionTests(TestCase):
+    def test_get_version(self):
+        value = get_version()
+        version_parts = value.split('.')
+        self.assertEqual(len(version_parts), 3) # Three parts
+        int(version_parts[0])  # Major should be an integer
+        int(version_parts[1])  # Minor should be an integer
