@@ -754,3 +754,6 @@ class idna:
 idna_to_unicode = idna.decode
 
 idna_to_ascii = idna.encode
+
+def get_version():
+    return ffi.string(lib.ada_get_version()).decode()
