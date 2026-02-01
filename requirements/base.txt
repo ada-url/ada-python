@@ -2,4 +2,4 @@
 cffi==2.0.0
 
 # What we need
-pycparser==2.23
+pycparser==3.0
