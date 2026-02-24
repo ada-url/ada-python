@@ -61,7 +61,6 @@ build = [
     "cp312-*",
     "cp313-*",
     "cp314-*",
-    "pp310-*",
 ]
 manylinux-x86_64-image = "manylinux_2_28"
 manylinux-aarch64-image = "manylinux_2_28"
@@ -76,8 +75,3 @@ before-build = "make clean"
 
 [tool.cibuildwheel.windows]
 archs = ["AMD64"]
-
-# https://github.com/pypy/pypy/issues/5027
-[[tool.cibuildwheel.overrides]]
-select = "pp310-win_amd64"
-environment = { SETUPTOOLS_USE_DISTUTILS="stdlib" }
