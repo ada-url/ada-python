@@ -10,7 +10,7 @@ compile_args = ['/std:c++20'] if platform == 'win32' else ['-std=c++20']
 ada_obj = Extension(
     'ada',
     define_macros=[('ADA_INCLUDE_URL_PATTERN', '0')],
-    language="c++",
+    language='c++',
     sources=['ada_url/ada.cpp'],
     include_dirs=[file_dir],
     extra_compile_args=compile_args,

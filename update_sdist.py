@@ -3,6 +3,7 @@ update_sdist.py
 
 Run this script to remove compiled artifacts from source distribution tarballs.
 """
+
 from pathlib import Path
 from tarfile import open as tar_open
 from tempfile import TemporaryDirectory
