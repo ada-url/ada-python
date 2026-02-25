@@ -271,7 +271,11 @@ class URL:
         return self.href
 
     def __repr__(self):
-        return f'<URL "{self.href}">'
+        password = self.password
+        self.password = ''
+        ret = f'<URL "{self.href}">'
+        self.password = password
+        return ret
 
     @staticmethod
     def can_parse(url: str, base: Optional[str] = None) -> bool:
@@ -754,6 +758,7 @@ class idna:
 idna_to_unicode = idna.decode
 
 idna_to_ascii = idna.encode
+
 
 def get_version():
     return ffi.string(lib.ada_get_version()).decode()

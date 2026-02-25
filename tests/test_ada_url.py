@@ -194,6 +194,15 @@ class ADAURLTests(TestCase):
         expected = '<URL "https://example.org/something.txt">'
         self.assertEqual(actual, expected)
 
+    def test_to_repr_password(self):
+        # Redact the password attribute from __repr__, but keep it on the object.
+        urlobj = URL('https://user:password1@example.org/../something.txt')
+        self.assertEqual(repr(urlobj), '<URL "https://user@example.org/something.txt">')
+        self.assertEqual(urlobj.password, 'password1')
+        self.assertEqual(
+            str(urlobj), 'https://user:password1@example.org/something.txt'
+        )
+
     def test_check_url(self):
         for s, expected in (
             ('https:example.org', True),
@@ -555,6 +564,6 @@ class GetVersionTests(TestCase):
     def test_get_version(self):
         value = get_version()
         version_parts = value.split('.')
-        self.assertEqual(len(version_parts), 3) # Three parts
+        self.assertEqual(len(version_parts), 3)  # Three parts
         int(version_parts[0])  # Major should be an integer
         int(version_parts[1])  # Minor should be an integer
