@@ -24,6 +24,7 @@ class build_ext(_build_ext):
                 ext.extra_objects[i] = objects[0]
         return super().build_extension(ext)
 
+
 setup(
     cmdclass={'build_ext': build_ext},
     cffi_modules=[
