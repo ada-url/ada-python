@@ -1,3 +1,4 @@
+from copy import deepcopy
 from enum import IntEnum
 from typing import (
     Dict,
@@ -271,11 +272,9 @@ class URL:
         return self.href
 
     def __repr__(self):
-        password = self.password
-        self.password = ''
-        ret = f'<URL "{self.href}">'
-        self.password = password
-        return ret
+        duplicate = deepcopy(self)
+        duplicate.password = ''
+        return f'<URL "{duplicate.href}">'
 
     @staticmethod
     def can_parse(url: str, base: Optional[str] = None) -> bool:
