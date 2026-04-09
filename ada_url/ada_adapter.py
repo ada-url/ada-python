@@ -216,7 +216,7 @@ class URL:
         cls = self.__class__
         ret = cls.__new__(cls)
         super(URL, ret).__init__()
-        ret.urlobj = lib.ada_copy(self.urlobj)
+        ret.urlobj = _get_obj(lib.ada_copy, lib.ada_free, self.urlobj)
 
         return ret
 
