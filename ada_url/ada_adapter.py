@@ -116,8 +116,7 @@ def _get_obj(constructor, destructor, *args):
 
 
 def _get_str(x):
-    ret = ffi.string(x.data, x.length).decode() if x.length else ''
-    return ret
+    return bytes(ffi.buffer(x.data, x.length)).decode() if x.length else ''
 
 
 class URL:
