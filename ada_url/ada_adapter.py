@@ -395,14 +395,16 @@ class URLSearchParams:
         return _get_str(item)
 
     def get_all(self, key: str) -> List[str]:
+        ret = []
         key_bytes = key.encode()
         items = lib.ada_search_params_get_all(self.paramsobj, key_bytes, len(key_bytes))
-        count = lib.ada_strings_size(items)
-
-        ret = []
-        for i in range(count):
-            value = _get_str(lib.ada_strings_get(items, i))
-            ret.append(value)
+        try:
+            count = lib.ada_strings_size(items)
+            for i in range(count):
+                value = _get_str(lib.ada_strings_get(items, i))
+                ret.append(value)
+        finally:
+            lib.ada_free_strings(items)
 
         return ret
 
