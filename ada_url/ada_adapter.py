@@ -272,7 +272,8 @@ class URL:
 
     def __repr__(self):
         duplicate = deepcopy(self)
-        duplicate.password = ''
+        if duplicate.password:
+            duplicate.password = ''
         return f'<URL "{duplicate.href}">'
 
     @staticmethod

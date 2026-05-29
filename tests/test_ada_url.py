@@ -203,6 +203,10 @@ class ADAURLTests(TestCase):
             str(urlobj), 'https://user:password1@example.org/something.txt'
         )
 
+    def test_repr_file(self):
+        url = URL('file:///')
+        repr(url)
+
     def test_check_url(self):
         for s, expected in (
             ('https:example.org', True),
