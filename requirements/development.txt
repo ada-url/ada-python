@@ -1,7 +1,7 @@
 build
 coverage
 ruff
-setuptools>=77.0.0
+setuptools>=82.0.1
 packaging>=24.2
 Sphinx
 twine
