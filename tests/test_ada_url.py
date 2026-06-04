@@ -535,6 +535,13 @@ class SearchParamsTests(TestCase):
         expected = 'key2=value3&key1=value4&key1=value5'
         self.assertEqual(actual, expected)
 
+    def test_null_handling(self):
+        evil_input = 'admin\x00hidden=true&safe=value'
+        params = SearchParams(evil_input)
+        actual = list(params.keys())
+        expected = ['admin\x00hidden', 'safe']
+        self.assertEqual(actual, expected)
+
 
 class ParseTests(TestCase):
     def test_url_suite(self):
