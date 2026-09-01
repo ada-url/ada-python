@@ -1,5 +1,5 @@
 # What we want
-cffi==2.1.0
+cffi==2.1.1
 
 # What we need
 pycparser==3.0
