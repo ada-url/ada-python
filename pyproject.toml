@@ -61,7 +61,9 @@ build = [
     "cp312-*",
     "cp313-*",
     "cp314-*",
+    "cp315-*",
 ]
+test-command = "python -m unittest discover -s {project}/tests"
 manylinux-x86_64-image = "manylinux_2_28"
 manylinux-aarch64-image = "manylinux_2_28"
 
