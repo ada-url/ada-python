@@ -1,4 +1,4 @@
-/* auto-generated on 2026-11-19 13:37:11 -0500. Do not edit! */
+/* auto-generated on 2026-11-19 15:19:30 -0500. Do not edit! */
 /* begin file include/ada.h */
 /**
  * @file ada.h
@@ -30,7 +30,7 @@
 #define ADA_H
 
 /* begin file include/ada/ada_idna.h */
-/* auto-generated on 2026-11-19 12:09:03 -0500. Do not edit! */
+/* auto-generated on 2026-11-19 15:08:48 -0500. Do not edit! */
 /* begin file include/idna.h */
 #ifndef ADA_IDNA_H
 #define ADA_IDNA_H
@@ -10212,6 +10212,9 @@ inline void url_pattern_result::store_inputs(const url_pattern_input& input,
                                              const std::string_view* base_url) {
   owned_strings_.clear();
   inputs.clear();
+  // inputs[] holds views into owned_strings_, so it must not reallocate
+  // (and move SSO buffers) after the first view is taken.
+  owned_strings_.reserve(2);
   if (std::holds_alternative<std::string_view>(input)) {
     owned_strings_.emplace_back(std::get<std::string_view>(input));
     inputs.emplace_back(std::string_view(owned_strings_.back()));
@@ -13177,14 +13180,14 @@ url_pattern_list_match_result url_pattern_list<regex_provider>::match(
 #ifndef ADA_ADA_VERSION_H
 #define ADA_ADA_VERSION_H
 
-#define ADA_VERSION "4.1.0"
+#define ADA_VERSION "4.1.1"
 
 namespace ada {
 
 enum {
   ADA_VERSION_MAJOR = 4,
   ADA_VERSION_MINOR = 1,
-  ADA_VERSION_REVISION = 0,
+  ADA_VERSION_REVISION = 1,
 };
 
 }  // namespace ada

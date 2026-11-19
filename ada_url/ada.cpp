@@ -1,4 +1,4 @@
-/* auto-generated on 2026-11-19 13:37:11 -0500. Do not edit! */
+/* auto-generated on 2026-11-19 15:19:30 -0500. Do not edit! */
 /* begin file src/ada.cpp */
 #include "ada.h"
 /* begin file src/checkers.cpp */
@@ -128,7 +128,7 @@ ada_really_inline constexpr bool verify_dns_length(
 
 ADA_PUSH_DISABLE_ALL_WARNINGS
 /* begin file src/ada_idna.cpp */
-/* auto-generated on 2026-11-19 12:09:03 -0500. Do not edit! */
+/* auto-generated on 2026-11-19 15:08:48 -0500. Do not edit! */
 /* begin file src/idna.cpp */
 /* begin file src/unicode_transcoding.cpp */
 /* begin file include/ada/idna/unicode_transcoding.h */
@@ -359,8 +359,8 @@ bool map(std::u32string_view input, std::u32string& out);
 /* end file include/ada/idna/mapping.h */
 
 #include <array>
-#include <cstdint>
 #include <cstring>
+#include <cstdint>
 #include <string>
 
 /* begin file src/table_store.hpp */
