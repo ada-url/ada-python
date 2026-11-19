@@ -1,6 +1,12 @@
+.PHONY: ci_requirements
+ci_requirements:
+	python3 -m pip install uv
+	pip install --no-build-isolation -r requirements/development.txt
+
 .PHONY: requirements
 requirements:
-	python -m pip install -U -r requirements/development.txt ${req_args}
+	python3 -m pip install uv
+	python -m uv pip install -U -r requirements/development.txt ${req_args}
 
 .PHONY: check
 check:
